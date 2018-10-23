@@ -39,7 +39,7 @@ public class View{
 		}
 
 		gc = controller;
-		newGame();
+		//newGame();
 		
 
 	}
