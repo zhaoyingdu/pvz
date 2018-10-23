@@ -20,7 +20,9 @@ public class PlantFactory {
                                 System.out.println("no enough money");
                                 return null;
                             }else{
-                                return new Sunflower();
+                                Sunflower newSunflower = new Sunflower();
+                                Sunflower.resetCD();
+                                return newSunflower;
                             }
                         } catch (IllegalArgumentException e) {
                             // TODO Auto-generated catch block

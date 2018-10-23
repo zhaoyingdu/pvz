@@ -3,6 +3,7 @@ package pvz2018;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public class Controller implements PropertyChangeListener{
     View view;
@@ -32,12 +33,23 @@ public class Controller implements PropertyChangeListener{
         }
     }
 
-    private void setGardenProperty(String propertyName, Object newValue){
-        
+    public void nextStep(Object[] stepInfo){
+        switch((String)stepInfo[0]){
+            case "plant":
+                plantNewDefense(Arrays.copyOfRange(stepInfo, 1, 4));
+                break;
+            case "collect":
+                garden.collectSuns();
+                break;
+            case "idle":
+                garden.idle(stepInfo[1]);
+                break;
+                
+        }
 
     }
 
-    public void plantNewDefense(Object[] newValue){
-        garden.plantDefense((String)newValue[0], (int)newValue[1], (int)newValue[1]);
+    private void plantNewDefense(Object[] newValue){
+        garden.plantDefense((String)newValue[0], (int)newValue[1], (int)newValue[2]);
     }
 }

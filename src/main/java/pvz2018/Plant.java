@@ -4,13 +4,13 @@ import java.util.Random;
 
 public abstract class Plant {
     Random rand = new Random();
-
+	protected String name;
 	protected int health;
-	public static int coolDown;
+	//public static int COOLDOWNSEC;
+	//public static int coolDown;
 	protected boolean isDead, isCooledDown;
 	protected int damage, rowNumber, colNumber, price;
         
-    
 
 	public Plant(){
 		//this.health = health;
@@ -21,21 +21,14 @@ public abstract class Plant {
 		//this.coolDown = coolDown;
 		//this.isDead = false;
 	}
+	
+	public abstract String getName();
     
-    public abstract void resetCD();
-
-    public void deceaseCD(){
-        if(coolDown == 0) return;
-        coolDown --;
-    }
-
-	public int getCD(){
-		return coolDown;
-	}
+	
 	public int getRow(){
         return rowNumber;
     }
-
+	
     public int getColumn(){
         return colNumber;
     }
