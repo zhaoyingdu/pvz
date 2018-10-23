@@ -2,6 +2,7 @@ package pvz2018;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Method;
 
 public class Controller implements PropertyChangeListener{
     View view;
@@ -25,6 +26,20 @@ public class Controller implements PropertyChangeListener{
     public void propertyChange(PropertyChangeEvent e){
         System.out.println("Propergating Event");
         view.gardenPropertyChange(e);
+    }
+
+    private void setGardenProperty(String propertyName, Object newValue){
+        Class gardenClass = garden.getClass();
+        try {
+            Method method = gardenClass.getMethod("set" + propertyName, new Class[] { newValue.getClass() });
+        } catch (NoSuchMethodException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
 }

@@ -8,7 +8,9 @@ import java.util.ArrayList;
 
 public class Garden extends AbstractGarden{// extends AbstractModel{
 
-    
+    Plant[][] layout;
+    int layoutWidth = 8;
+    int layoutHeight = 5;
     List<Plant> plants;
     List<Zombie> zombies;
 
@@ -31,4 +33,11 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
         //firePropertyChange("model initialization complete", null, null);
         
     }
+
+    public boolean plantDefense(String plantName, int row, int col){
+        
+
+    }
+
+
 }
