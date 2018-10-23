@@ -18,12 +18,13 @@ public class View{
     enum plants {sunflower,peashooter};
 	String sunFlowerView = "Sun Flower |.....|\n";
 	String peaShooterView = "Pea Shooter |...|\n";
-    String gardenView = "  0 1 2 3 4 5 6 7\n"+
+    StringBuilder gardenView = new StringBuilder(
+						"  0 1 2 3 4 5 6 7\n"+
                         "0 _ _ _ _ _ _ _ _\n"+
 						"1 _ _ _ _ _ _ _ _\n"+
 						"2 _ _ _ _ _ _ _ _\n"+
 						"3 _ _ _ _ _ _ _ _\n"+
-						"4 _ _ _ _ _ _ _ _\n";
+						"4 _ _ _ _ _ _ _ _\n");
     int suns = 0;
     String statusView = "suns: "+suns +"\n";
 	//String welcome = 
@@ -71,8 +72,15 @@ public class View{
                         "dig [row] [column]\n>");
         Matcher matcher = commandRegex.matcher(command); 
 		if(matcher.find()){
-			
-        	console.printf("1:"+matcher.group(1)+"2:"+matcher.group(2)+"3:"+matcher.group(3)+"4:"+matcher.group(4));
+			switch(matcher.group(1)){
+				case "plant":
+					String plantName = matcher.group(2);
+					int row = Integer.parseInt(matcher.group(3));
+					int col = Integer.parseInt(matcher.group(4));
+					Object[] plantinfo = new Object[]{plantName,row,col};
+					gc.plantNewDefense(plantinfo);
+			}
+        	//console.printf("1:"+matcher.group(1)+"2:"+matcher.group(2)+"3:"+matcher.group(3)+"4:"+matcher.group(4));
 		}
     }
 
@@ -85,14 +93,17 @@ public class View{
 		console.printf(sunFlowerView);
         console.printf(peaShooterView);
         console.printf(statusView);
-		console.printf(gardenView);
+		console.printf(gardenView.toString());
 		console.printf("+++++++++++++++++\n");
 	}
 
 	//update view
-	public void gardenPropertyChange(java.beans.PropertyChangeEvent e){
+	public void gardenPropertyChange(PropertyChangeEvent e){
 		//String propertyName
 		switch(e.getPropertyName()){
+			case "planted":
+				Object[] newValue = (Object[])e.getNewValue();
+				gardenView.setCharAt(18+(int)newValue[1]*18+2+(int)newValue[1]*2,(char)newValue[0]);
 			/*case "model initialization complete":
 				console.printf("model initialization complete");
 				printGame();

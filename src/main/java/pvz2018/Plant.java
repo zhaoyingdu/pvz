@@ -5,20 +5,18 @@ import java.util.Random;
 public abstract class Plant {
     Random rand = new Random();
 
-    protected int health, coolDown;
+	protected int health;
+	public static int coolDown;
 	protected boolean isDead, isCooledDown;
 	protected int damage, rowNumber, colNumber, price;
         
     
-    public Plant(){
 
-    }
-
-	public Plant(int rowNumber, int colNumber){
+	public Plant(){
 		//this.health = health;
 		//this.damage = damage;
-		this.rowNumber = rowNumber;
-		this.colNumber = colNumber;
+		//this.rowNumber = rowNumber;
+		//this.colNumber = colNumber;
 		//this.price = price;
 		//this.coolDown = coolDown;
 		//this.isDead = false;

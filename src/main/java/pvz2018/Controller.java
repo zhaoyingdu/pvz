@@ -29,17 +29,11 @@ public class Controller implements PropertyChangeListener{
     }
 
     private void setGardenProperty(String propertyName, Object newValue){
-        Class gardenClass = garden.getClass();
-        try {
-            Method method = gardenClass.getMethod("set" + propertyName, new Class[] { newValue.getClass() });
-        } catch (NoSuchMethodException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        
 
     }
 
+    public void plantNewDefense(Object[] newValue){
+        garden.plantDefense((String)newValue[0], (int)newValue[1], (int)newValue[1]);
+    }
 }
