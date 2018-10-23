@@ -2,6 +2,17 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - RegexTestHarness",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "pvz2018.RegexTestHarness",
+            "args": "",
+            "projectName": "pvz2018java"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - App",
             "request": "launch",
             "cwd": "${workspaceFolder}",

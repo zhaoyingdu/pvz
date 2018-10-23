@@ -1,6 +1,8 @@
 package pvz2018;
 
 import java.io.Console;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.io.IOException;
 import java.util.Random;
 import java.util.List;
@@ -12,7 +14,8 @@ import java.beans.PropertyChangeEvent;
 
 public class View{
 	Console console;
-	Controller gc; //game controller
+    Controller gc; //game controller
+    enum plants {sunflower,peashooter};
 	String sunFlowerView = "Sun Flower |.....|\n";
 	String peaShooterView = "Pea Shooter |...|\n";
     String gardenView = "  0 1 2 3 4 5 6 7\n"+
@@ -20,7 +23,7 @@ public class View{
 						"1 _ _ _ _ _ _ _ _\n"+
 						"2 _ _ _ _ _ _ _ _\n"+
 						"3 _ _ _ _ _ _ _ _\n"+
-						"3 _ _ _ _ _ _ _ _\n";
+						"4 _ _ _ _ _ _ _ _\n";
     int suns = 0;
     String statusView = "suns: "+suns +"\n";
 	//String welcome = 
@@ -36,7 +39,7 @@ public class View{
 
 		gc = controller;
 		newGame();
-		printGame();
+		
 
 	}
 
@@ -55,11 +58,25 @@ public class View{
 		}
 
 		gc.command_newGame();
-
+        printGame();
+        next();
 	}
 
-    public void plant(String plantName, int row, int col){
-        console.printf("choose your defense");
+
+    public void next(){
+        //"plant\s"
+        Pattern commandRegex = Pattern.compile("(plant)\\s+(sunflower|peashooter)\\s+([0-4])\\s+([0-7])");
+        String command=console.readLine("enter command:\n"+
+                        "plant [plant name] [row] [column]\n"+
+                        "dig [row] [column]\n>");
+        Matcher matcher = commandRegex.matcher(command); 
+
+        console.printf("1:"+matcher.group(1)+"2:"+matcher.group(2)+"3:"+matcher.group(3)+"4:"+matcher.group(4));
+        
+    }
+
+    private void plant(String plantName, int row, int col){
+        console.printf("choose your defense:"+plants.sunflower+" "+plants.peashooter);
     }
 
 	public void printGame(){

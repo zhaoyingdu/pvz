@@ -7,6 +7,8 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 
 public class Garden extends AbstractGarden{// extends AbstractModel{
+
+    
     List<Plant> plants;
     List<Zombie> zombies;
 
@@ -29,18 +31,4 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
         //firePropertyChange("model initialization complete", null, null);
         
     }
-
-   /* public void addPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(listener);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(listener);
-    }
-
-    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-        System.out.println("fireing property"+propertyName);
-        propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
-    }*/
-    
 }

@@ -1,5 +1,8 @@
 package pvz2018;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Store{
     enum Plants{
         SUNFLOWER("sun flower",5),
@@ -15,5 +18,13 @@ public class Store{
         public int getCd(){return cd;}
     }
 
+    private Map<String,Integer> plantCD;
+
+    public Store(){
+        plantCD = new HashMap<>();
+    }
+
+
+    
 
 }
