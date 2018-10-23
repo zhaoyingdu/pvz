@@ -70,9 +70,9 @@ public class View{
                         "plant [plant name] [row] [column]\n"+
                         "dig [row] [column]\n>");
         Matcher matcher = commandRegex.matcher(command); 
-
-        console.printf("1:"+matcher.group(1)+"2:"+matcher.group(2)+"3:"+matcher.group(3)+"4:"+matcher.group(4));
-        
+		if(matcher.find()){
+        	console.printf("1:"+matcher.group(1)+"2:"+matcher.group(2)+"3:"+matcher.group(3)+"4:"+matcher.group(4));
+		}
     }
 
     private void plant(String plantName, int row, int col){

@@ -33,27 +33,24 @@ package pvz2018;
 
 import java.io.Console;
 import java.util.regex.Pattern;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 
 public class RegexTestHarness {
 
     public static void main(String[] args){
-        Console console = System.console();
-        if (console == null) {
-            System.err.println("No console.");
-            System.exit(1);
-        }
+        Scanner sc = new Scanner(System.in);
         while (true) {
-
+            System.out.println("%nEnter your regex: ");
             Pattern pattern = 
-            Pattern.compile(console.readLine("%nEnter your regex: "));
-
+            Pattern.compile(sc.nextLine());
+            System.out.println("Enter input string to search: ");
             Matcher matcher = 
-            pattern.matcher(console.readLine("Enter input string to search: "));
+            pattern.matcher(sc.nextLine());
 
             boolean found = false;
             while (matcher.find()) {
-                console.format("I found the text" +
+                System.out.printf("I found the text" +
                     " \"%s\" starting at " +
                     "index %d and ending at index %d.%n",
                     matcher.group(),
@@ -62,7 +59,7 @@ public class RegexTestHarness {
                 found = true;
             }
             if(!found){
-                console.format("No match found.%n");
+                System.out.printf("No match found.%n");
             }
         }
     }
