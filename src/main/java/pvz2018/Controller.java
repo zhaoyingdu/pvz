@@ -25,7 +25,11 @@ public class Controller implements PropertyChangeListener{
 
     public void propertyChange(PropertyChangeEvent e){
         System.out.println("Propergating Event");
-        view.gardenPropertyChange(e);
+        if(view!=null){
+            view.gardenPropertyChange(e);
+        }else{
+            System.out.println("view not initialized");
+        }
     }
 
     private void setGardenProperty(String propertyName, Object newValue){

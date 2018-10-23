@@ -16,7 +16,6 @@ public class App
 		View ui = new View(ctl);
         ctl.attachView(ui);
 
-        Garden garden = new Garden();
         /*
         debugger-test invoking propertyChange in Controller
         try {

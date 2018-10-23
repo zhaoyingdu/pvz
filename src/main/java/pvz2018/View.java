@@ -39,7 +39,7 @@ public class View{
 		}
 
 		gc = controller;
-		//newGame();
+		newGame();
 		
 
 	}
@@ -59,6 +59,7 @@ public class View{
 		}
 
 		gc.command_newGame();
+		gc.attachView(this);
         printGame();
         next();
 	}
@@ -99,11 +100,13 @@ public class View{
 
 	//update view
 	public void gardenPropertyChange(PropertyChangeEvent e){
-		//String propertyName
+		console.printf(e.getPropertyName());
 		switch(e.getPropertyName()){
 			case "planted":
 				Object[] newValue = (Object[])e.getNewValue();
 				gardenView.setCharAt(18+(int)newValue[1]*18+2+(int)newValue[1]*2,(char)newValue[0]);
+				printGame();
+				break;
 			/*case "model initialization complete":
 				console.printf("model initialization complete");
 				printGame();
