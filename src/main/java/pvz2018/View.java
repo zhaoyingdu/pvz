@@ -71,6 +71,7 @@ public class View{
                         "dig [row] [column]\n>");
         Matcher matcher = commandRegex.matcher(command); 
 		if(matcher.find()){
+			
         	console.printf("1:"+matcher.group(1)+"2:"+matcher.group(2)+"3:"+matcher.group(3)+"4:"+matcher.group(4));
 		}
     }
