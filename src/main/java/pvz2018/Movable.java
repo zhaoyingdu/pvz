@@ -6,6 +6,7 @@ import java.beans.PropertyChangeSupport;
 
 public abstract class Movable{
 
+    protected String name;
     protected double speed;
     //protected double intMove;//just to determine when to move the movable on view
     protected int row;
@@ -18,7 +19,7 @@ public abstract class Movable{
     public abstract int getInitCol();
     public abstract double getDisplacement();
     public abstract void propagate();
-
+    public abstract String getName();
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         propertyChangeSupport.addPropertyChangeListener(listener);
     }

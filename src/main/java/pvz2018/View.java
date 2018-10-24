@@ -162,7 +162,7 @@ public class View{
 	public void gardenPropertyChange(PropertyChangeEvent e){
 		//console.printf(e.getPropertyName());
 		switch(e.getPropertyName()){
-			
+
 			case "planted":
 				unpackState((Map<String,Object>)e.getNewValue());
 				printGame();
@@ -187,6 +187,9 @@ public class View{
 			case "plant failed":
 				console.printf((String)e.getNewValue());
 				break;
+			case "render":
+
+				break;
 			default:
 				console.printf("unknown model change...omg...");
 		}
@@ -194,14 +197,36 @@ public class View{
 	//utility to update the view;
 
 	private void unpackState(Map<String,Object> state){
+		gardenView = new StringBuilder(
+						"  0 1 2 3 4 5 6 7\n"+
+                        "0 _ _ _ _ _ _ _ _\n"+
+						"1 _ _ _ _ _ _ _ _\n"+
+						"2 _ _ _ _ _ _ _ _\n"+
+						"3 _ _ _ _ _ _ _ _\n"+
+						"4 _ _ _ _ _ _ _ _\n");
 		suns=(int)state.get("suns");
 		money=(int)state.get("money");
 		statusView = "suns: "+suns+" money: "+money+"\n";
 		updateCD(state);
 		parseLayout((Plant[][])state.get("layout"));
+		renderMovables((ArrayList<Movable>)state.get("movables"));
+
 		//printGame();
 	}
 
+	private void renderMovables(List<Movable> movables){
+		int row;
+		int position;
+		for (Movable m : movables){
+			row = m.getRow();
+			position = (int)Math.floor(m.getPosition());
+			switch(m.getName()){
+				case "greenpea":
+					gardenView.setCharAt(18+row*18+2+position,'o');
+					break;
+			}
+		}
+	}
 	private void updateCD(Map<String,Object> state){
 		sunFlowerView = "Sun Flower |";//".....|\n";
 		for(int i=0;i<(int)state.get("sunflowerCD");i++){

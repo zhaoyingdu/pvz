@@ -10,6 +10,7 @@ public class Greenpea extends Movable{
         initCol = col;
         //this.displace = col;
         displacement = 0;
+        name="greenpea";
     }
 
     @Override
@@ -25,7 +26,7 @@ public class Greenpea extends Movable{
         displacement+=speed;
         //Math.floor(variable)
         if ((displacement == Math.floor(displacement)) && !Double.isInfinite(displacement)) {
-            firePropertyChange("propagate pea", null, new int[]{row,(int)Math.floor(displacement)};
+            firePropertyChange("propagate pea", null, new int[]{row,(int)Math.floor(displacement)});
         }     
     }
 
@@ -36,7 +37,12 @@ public class Greenpea extends Movable{
 
     @Override
     public double getPosition() {
-        return initCol+displacement;
+        return initCol*2+displacement;//this is a bit dirty.. it shouldn't know the actual screen configuration
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
 }

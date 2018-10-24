@@ -142,7 +142,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
                 break;
             case "propagate pea":
                 if(checkBound((Greenpea)evt.getSource())){
-                    //render view;
+                    firePropertyChange("render",null , packState());;
                 }else{
                     movables.remove((Greenpea)evt.getSource());
                 }

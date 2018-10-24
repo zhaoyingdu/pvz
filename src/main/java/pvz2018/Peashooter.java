@@ -32,7 +32,7 @@ public class Peashooter extends Plant{
 
     public void grow(){
         life++;
-        if(life%3==0){
+        if(life%5==0){
             Greenpea bullet = new Greenpea(row,col); 
             bullet.addPropertyChangeListener(Garden.getInstance());
             firePropertyChange("fire green pea", null, bullet);
