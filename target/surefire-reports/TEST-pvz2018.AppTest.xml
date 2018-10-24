@@ -18,7 +18,7 @@
     <property name="user.country" value="CA"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_181\jre\bin"/>
-    <property name="sun.java.command" value="C:\Users\ZHAOYI~1\AppData\Local\Temp\surefire5785733246108240100\surefirebooter5667201808772226540.jar C:\Users\zhaoying du\AppData\Local\Temp\surefire5785733246108240100 2018-10-23T22-26-33_020-jvmRun1 surefire2941061894932200564tmp surefire_06655783707078738695tmp"/>
+    <property name="sun.java.command" value="C:\Users\ZHAOYI~1\AppData\Local\Temp\surefire8621119909961236366\surefirebooter8112967328180844737.jar C:\Users\zhaoying du\AppData\Local\Temp\surefire8621119909961236366 2018-10-24T00-09-42_670-jvmRun1 surefire7355920943483647531tmp surefire_04796407938154890848tmp"/>
     <property name="surefire.test.class.path" value="D:\f18\3110\pvz\pvz2018java\target\test-classes;D:\f18\3110\pvz\pvz2018java\target\classes;C:\Users\zhaoying du\.m2\repository\junit\junit\4.11\junit-4.11.jar;C:\Users\zhaoying du\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="C:\Users\zhaoying du"/>
@@ -31,7 +31,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
-    <property name="surefire.real.class.path" value="C:\Users\ZHAOYI~1\AppData\Local\Temp\surefire5785733246108240100\surefirebooter5667201808772226540.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\ZHAOYI~1\AppData\Local\Temp\surefire8621119909961236366\surefirebooter8112967328180844737.jar"/>
     <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.8.0_181\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_181\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_181\jre\classes"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
@@ -60,5 +60,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="52.0"/>
   </properties>
-  <testcase name="shouldAnswerWithTrue" classname="pvz2018.AppTest" time="0.002"/>
+  <testcase name="shouldAnswerWithTrue" classname="pvz2018.AppTest" time="0.003"/>
 </testsuite>

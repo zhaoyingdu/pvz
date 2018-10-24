@@ -78,8 +78,9 @@ public class View{
 			
 			Pattern plantCommand = Pattern.compile("(plant)\\s+(sunflower|peashooter)\\s+([0-4])\\s+([0-7])");
 			Pattern digCommand = Pattern.compile("(dig)\\s+([0-4])\\s+([0-7])");
-			Pattern collectCommand = Pattern.compile("collect");
+			Pattern collectCommand = Pattern.compile("(collect)");
 			Pattern idleCommand = Pattern.compile("(idle)\\s+([0-9])");
+			Pattern exitCommand = Pattern.compile("(exit)");
 
 
 			String command=console.readLine("enter command:\n"+
@@ -107,6 +108,16 @@ public class View{
 							console.printf("plant command not correct");
 						}
 						break;
+					case "dig":
+						matcher = digCommand.matcher(command);
+						if(matcher.find()){
+							int row = Integer.parseInt(matcher.group(2));
+							int col = Integer.parseInt(matcher.group(3));
+							commandInfo = new Object[]{commandName, row,col};
+						}else{
+							console.printf("dig command not correct");
+						}
+						break;
 					case "collect":
 						matcher = collectCommand.matcher(command);
 						if(matcher.find()){
@@ -125,7 +136,12 @@ public class View{
 						}
 						break;
 					case "exit":
-						System.exit(0);
+						matcher = exitCommand.matcher(command);
+						if(matcher.find()){
+							System.exit(0);
+						}
+						break;
+						
 				}
 				gc.nextStep(commandInfo);
 			}
@@ -150,14 +166,17 @@ public class View{
 				unpackState((Map<String,Object>)e.getNewValue());
 				printGame();
 				break;
+			case "plant removed":
+				unpackState((Map<String,Object>)e.getNewValue());
+				printGame();
+				break;
 			case "sun droped":
 				console.printf("new sun\n");
 				suns++;
 				printGame();
 				break;
-			case "sunCollected":
-				suns=0;
-				money = (int)e.getNewValue();
+			case "sun collected":
+				unpackState((Map<String,Object>)e.getNewValue());
 				printGame();
 				break;
 			case "back":
@@ -200,6 +219,8 @@ public class View{
 			for(int col = 0; col<cols;col++){
 				if(layout[row][col]!=null){
 					gardenView.setCharAt(18+row*18+2+col*2,layout[row][col].getName().charAt(0));
+				}else{
+					gardenView.setCharAt(18+row*18+2+col*2,'_');
 				}
 			}
 		}

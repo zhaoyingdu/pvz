@@ -8,7 +8,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Garden extends AbstractGarden{// extends AbstractModel{
+public class Garden extends AbstractGarden implements PropertyChangeListener{// extends AbstractModel{
 
     PlantFactory plantFactory = new PlantFactory();
     int layoutWidth = 8;
@@ -38,6 +38,7 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
     public static Garden getInstance(){
         if(garden==null){
             garden = new Garden();
+            System.out.println("new garden hahaha....");
         }
         return garden;
     }
@@ -50,7 +51,7 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
         }
         Plant newPlant;
         try {
-            newPlant = plantFactory.createPlant(plantName);
+            newPlant = plantFactory.createPlant(plantName,row,col);
 
             money -= newPlant.getPrice();
             layout[row][col]=newPlant;
@@ -60,16 +61,24 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
         } catch (NotEnoughMoneyException | InCooldownException e) {
             firePropertyChange("plant failed",null,"plant "+plantName+" failed."+e.getMessage());
             //System.out.println(e.getMessage());
+        }   
+        
+    }
+
+    public void dig(int row, int col){
+        if(layout[row][col] == null){ 
+            return;
+        }else{
+            layout[row][col] = null; //hopefully it get garbage collected..
+            packState();
+            firePropertyChange("plant removed",null,packState());
         }
-        
-        
-        
     }
     //game progress not updated
     public void collectSuns(){
-        money = suns*25;
+        money += suns*25;
         suns = 0;
-        firePropertyChange("sunCollected",null,money);
+        firePropertyChange("sun collected",null,packState());
     }
 
     public void idle(int rounds){
@@ -84,9 +93,17 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
     private void updateProgress(){
         gameProgress++;
         plantFactory.decreaseCD();
+        for(int row = 0;row<layoutHeight;row++){
+			for(int col = 0; col<layoutWidth;col++){
+                Plant p = layout[row][col];
+				if(p!=null){
+					p.grow();
+				}
+			}
+		}
         if(gameProgress%3==0) dropSun();
     }
-    //garden is dropping sun
+    //garden or sunflower is dropping sun
     private void dropSun(){
         suns++;
         if(!idle)firePropertyChange("sun droped",null,packState());
@@ -101,6 +118,18 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
         state.putAll(plantFactory.getFactoriesCD());
 
         return state;
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        switch(evt.getPropertyName()){
+            case "new sun":
+                int[] plantinfo = (int[])evt.getNewValue();
+                String log = "sunflower at "+ plantinfo[0]+" "+plantinfo[1];
+                System.out.println(log);
+                dropSun();
+                break;
+        }
     }
 
     

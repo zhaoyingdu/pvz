@@ -38,12 +38,16 @@ public class Controller implements PropertyChangeListener{
             case "plant":
                 plantNewDefense(Arrays.copyOfRange(stepInfo, 1, 4));
                 break;
+            case "dig":
+                garden.dig((int)stepInfo[1],(int)stepInfo[2]);
+                break;    
             case "collect":
                 garden.collectSuns();
                 break;
             case "idle":
                 garden.idle((int)stepInfo[1]);
                 break;
+            
                 
         }
 

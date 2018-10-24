@@ -7,6 +7,7 @@ import java.util.Map;
 public class PlantFactory {
     
     SunflowerFactory sunflowerFactory = SunflowerFactory.getInstance();
+    //Garden garden = Garden.getInstance();
 
 
     public PlantFactory(){  
@@ -21,12 +22,13 @@ public class PlantFactory {
         fcd.put("sunflowerCD",sunflowerFactory.getCD());
         return fcd;
     }
-    public Plant createPlant(String plantName) throws NotEnoughMoneyException, InCooldownException {
+    public Plant createPlant(String plantName,int row, int col) throws NotEnoughMoneyException, InCooldownException {
         Plant newPlant =null;
         switch(plantName){
             case "sunflower":
                 if(checkPrice(sunflowerFactory.getPrice())){
-                    newPlant = sunflowerFactory.createSunflower();
+                    newPlant = sunflowerFactory.createSunflower(row,col);
+                    newPlant.addPropertyChangeListener(Garden.getInstance());
                 }else{
                     //do nothing
                 }

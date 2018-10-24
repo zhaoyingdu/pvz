@@ -18,12 +18,12 @@ public class SunflowerFactory {
         return sunflowerFactory;
     }
 
-    public Sunflower createSunflower() throws InCooldownException{
+    public Sunflower createSunflower(int row,int col) throws InCooldownException{
         if(inCD()){
             throw new InCooldownException("sunflower factory is in cd");
         }else{
             resetCD();
-            return new Sunflower();
+            return new Sunflower(row,col);
         }
         
     }

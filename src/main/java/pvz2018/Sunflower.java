@@ -7,9 +7,13 @@ public class Sunflower extends Plant{
     private boolean dead = false;
     private int price = 25;
 
-    public Sunflower(){
+
+    public Sunflower(int row,int col){
         name = "sunflower";
         health = HEALTH;
+        life =0;
+        this.row = row;
+        this.col = col;
     }
     
     public String getName(){
@@ -22,5 +26,14 @@ public class Sunflower extends Plant{
         health-=damage;
         if(health<0) dead = true;
     }
+
+    public void grow(){
+        life++;
+        if(life%4==0){
+            firePropertyChange("new sun", null, new int[]{row,col});
+        }
+    }
+
+    
     
 }
