@@ -19,7 +19,7 @@ public class Controller implements PropertyChangeListener{
 
     public void command_newGame(){
         System.out.println("CTL: init new game model");
-        garden = new Garden();
+        garden = Garden.getInstance();
         attachModel(garden);
         //view.printGame();//dirty..print game should private..but this is just to test
     }

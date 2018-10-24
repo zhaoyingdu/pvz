@@ -95,7 +95,7 @@ public class View{
 				//String commandName = matcher.group(1);
 				String commandName = matcher.group(1);
 				console.printf(commandName+"\n");
-				switch(commandName){
+				switch(commandName.trim()){
 					case "plant":	
 						matcher = plantCommand.matcher(command);
 						if(matcher.find()){
@@ -144,12 +144,10 @@ public class View{
 
 	//update view
 	public void gardenPropertyChange(PropertyChangeEvent e){
-		console.printf(e.getPropertyName());
+		//console.printf(e.getPropertyName());
 		switch(e.getPropertyName()){
 			case "planted":
-				Object[] newValue = (Object[])e.getNewValue();
-				gardenView.setCharAt(18+(int)newValue[1]*18+2+(int)newValue[2]*2,(char)newValue[0]);
-				updateCD((char)newValue[0]);
+				unpackState((Map<String,Object>)e.getNewValue());
 				printGame();
 				break;
 			case "sun droped":
@@ -164,6 +162,10 @@ public class View{
 				break;
 			case "back":
 				unpackState((Map<String,Object>)e.getNewValue());
+				printGame();
+				break;
+			case "plant failed":
+				console.printf((String)e.getNewValue());
 				break;
 			default:
 				console.printf("unknown model change...omg...");
@@ -174,26 +176,23 @@ public class View{
 	private void unpackState(Map<String,Object> state){
 		suns=(int)state.get("suns");
 		money=(int)state.get("money");
-		//parseLayout((Plant[][])state.get("layout"));
-		printGame();
+		statusView = "suns: "+suns+" money: "+money+"\n";
+		updateCD(state);
+		parseLayout((Plant[][])state.get("layout"));
+		//printGame();
 	}
 
-	private void updateCD(char plantInitial){
-		switch(plantInitial){
-			case 's':
-				sunFlowerView = "Sun Flower |";//".....|\n";
-				for(int i=0;i<Sunflower.coolDown;i++){
-					sunFlowerView+='.';
-				}
-				sunFlowerView += "|\n";
-				break;
-			default:
-
+	private void updateCD(Map<String,Object> state){
+		sunFlowerView = "Sun Flower |";//".....|\n";
+		for(int i=0;i<(int)state.get("sunflowerCD");i++){
+			sunFlowerView+='.';
 		}
+		sunFlowerView += "|\n";	
+
 	}
 
+	public void parseLayout(Plant[][] layout){
 
-	private void parseLayout(Plant[][] layout){
 		int rows=layout.length;
 		int cols = layout[0].length;
 		
@@ -207,3 +206,7 @@ public class View{
 	}
 	
 }
+
+
+	
+	

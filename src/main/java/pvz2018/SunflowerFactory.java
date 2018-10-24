@@ -5,6 +5,7 @@ public class SunflowerFactory {
     private int COOLDOWNSEC = 5;
     private int coolDown;
     private boolean resetted = false;
+    private int price = 25;
     private static SunflowerFactory sunflowerFactory;
 
     private SunflowerFactory(){}
@@ -17,23 +18,27 @@ public class SunflowerFactory {
         return sunflowerFactory;
     }
 
-    public Sunflower createSunflower(){
+    public Sunflower createSunflower() throws InCooldownException{
         if(inCD()){
-            System.out.println("sunflower factory is in cd");
-            return null;
+            throw new InCooldownException("sunflower factory is in cd");
         }else{
+            resetCD();
             return new Sunflower();
         }
         
     }
-
+ 
+    public int getPrice(){return price;}
     public void resetCD(){
         coolDown = COOLDOWNSEC;
         resetted =true;
 	}
 	public boolean inCD(){
 		return coolDown !=0;
-	}
+    }
+    public int getCD(){
+        return coolDown;
+    }
     public void deceaseCD(){
         if(coolDown == 0) return;
         if(!resetted){
