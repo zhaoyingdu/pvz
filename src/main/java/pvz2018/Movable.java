@@ -1,0 +1,36 @@
+package pvz2018;
+
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
+public abstract class Movable{
+
+    protected double speed;
+    //protected double intMove;//just to determine when to move the movable on view
+    protected int row;
+    protected int initCol;
+    protected double displacement;
+    protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+
+
+    public abstract int getRow();
+    public abstract int getInitCol();
+    public abstract double getDisplacement();
+    public abstract void propagate();
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
+    }
+
+    public abstract double getPosition();
+
+}

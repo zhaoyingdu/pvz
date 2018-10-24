@@ -11,9 +11,12 @@ import java.util.HashMap;
 public class Garden extends AbstractGarden implements PropertyChangeListener{// extends AbstractModel{
 
     PlantFactory plantFactory = new PlantFactory();
-    int layoutWidth = 8;
-    int layoutHeight = 5;
-    Plant[][] layout = new Plant[layoutHeight][layoutWidth];
+    int screenWidth = 15;
+    int lotWidth = 8;
+    int lotHeight = 5;
+    Plant[][] lots = new Plant[lotHeight][lotWidth];
+    List<Movable> movables = new ArrayList<>();
+
     SunflowerFactory sFactory = SunflowerFactory.getInstance();
 
     int gameProgress = 0;
@@ -45,7 +48,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
 
     public void plantDefense(String plantName, int row, int col){
         System.out.println("Garden-plantDefense");
-        if(layout[row][col] != null){
+        if(lots[row][col] != null){
             System.out.println("slot occupied");
             return;
         }
@@ -54,7 +57,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
             newPlant = plantFactory.createPlant(plantName,row,col);
 
             money -= newPlant.getPrice();
-            layout[row][col]=newPlant;
+            lots[row][col]=newPlant;
             Map<String,Object> newState = packState();
             firePropertyChange("planted", null, newState);
             updateProgress();
@@ -66,10 +69,10 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     }
 
     public void dig(int row, int col){
-        if(layout[row][col] == null){ 
+        if(lots[row][col] == null){ 
             return;
         }else{
-            layout[row][col] = null; //hopefully it get garbage collected..
+            lots[row][col] = null; //hopefully it get garbage collected..
             packState();
             firePropertyChange("plant removed",null,packState());
         }
@@ -93,14 +96,18 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     private void updateProgress(){
         gameProgress++;
         plantFactory.decreaseCD();
-        for(int row = 0;row<layoutHeight;row++){
-			for(int col = 0; col<layoutWidth;col++){
-                Plant p = layout[row][col];
+        for(int row = 0;row<lotHeight;row++){
+			for(int col = 0; col<lotWidth;col++){
+                Plant p = lots[row][col];
 				if(p!=null){
 					p.grow();
 				}
 			}
-		}
+        }
+        
+        for(Movable m : movables){
+            m.propagate();
+        }
         if(gameProgress%3==0) dropSun();
     }
     //garden or sunflower is dropping sun
@@ -112,10 +119,11 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
 
     private Map<String,Object> packState(){  
         Map<String,Object> state = new HashMap<>();
-        state.put("layout",layout);
+        state.put("layout",lots);
         state.put("suns",suns);
         state.put("money",money);
         state.putAll(plantFactory.getFactoriesCD());
+        state.put("movables",movables);
 
         return state;
     }
@@ -129,8 +137,26 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
                 System.out.println(log);
                 dropSun();
                 break;
+            case "fire green pea":
+                movables.add((Greenpea)evt.getNewValue());
+                break;
+            case "propagate pea":
+                if(checkBound((Greenpea)evt.getSource())){
+                    //render view;
+                }else{
+                    movables.remove((Greenpea)evt.getSource());
+                }
         }
     }
 
+
+    private boolean checkBound(Movable movable){
+        double position = movable.getPosition();
+        if(position>screenWidth){
+            return false;
+        }else{
+            return true;
+        }
+    }
     
 }

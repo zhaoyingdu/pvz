@@ -7,6 +7,7 @@ import java.util.Map;
 public class PlantFactory {
     
     SunflowerFactory sunflowerFactory = SunflowerFactory.getInstance();
+    PeashooterFactory peashooterFactory = PeashooterFactory.getInstance();
     //Garden garden = Garden.getInstance();
 
 
@@ -15,11 +16,13 @@ public class PlantFactory {
 
     public void decreaseCD(){
         sunflowerFactory.deceaseCD();
+        peashooterFactory.deceaseCD();
     }
 
     public Map<String,Object> getFactoriesCD(){
         Map<String,Object> fcd = new HashMap<String,Object>();
         fcd.put("sunflowerCD",sunflowerFactory.getCD());
+        fcd.put("peashooterCD",peashooterFactory.getCD());
         return fcd;
     }
     public Plant createPlant(String plantName,int row, int col) throws NotEnoughMoneyException, InCooldownException {
@@ -34,6 +37,12 @@ public class PlantFactory {
                 }
                 break;
             case "peashooter":
+                if(checkPrice(peashooterFactory.getPrice())){
+                    newPlant = peashooterFactory.createPeashooter(row,col);
+                    newPlant.addPropertyChangeListener(Garden.getInstance());
+                }else{
+                    //do nothing
+                }
                 break;
             default:
                 return null;

@@ -162,6 +162,7 @@ public class View{
 	public void gardenPropertyChange(PropertyChangeEvent e){
 		//console.printf(e.getPropertyName());
 		switch(e.getPropertyName()){
+			
 			case "planted":
 				unpackState((Map<String,Object>)e.getNewValue());
 				printGame();
@@ -207,6 +208,12 @@ public class View{
 			sunFlowerView+='.';
 		}
 		sunFlowerView += "|\n";	
+
+		peaShooterView = "Pea Shooter |";//".....|\n";
+		for(int i=0;i<(int)state.get("peashooterCD");i++){
+			peaShooterView+='.';
+		}
+		peaShooterView += "|\n";	
 
 	}
 
