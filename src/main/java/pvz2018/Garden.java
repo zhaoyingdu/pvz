@@ -7,6 +7,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class Garden extends AbstractGarden implements PropertyChangeListener{// extends AbstractModel{
 
@@ -16,6 +17,8 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     int lotHeight = 5;
     Plant[][] lots = new Plant[lotHeight][lotWidth];
     List<Movable> movables = new ArrayList<>();
+
+    //Map<Integer,List<Movable>> movables = new HashMap<>();
 
     SunflowerFactory sFactory = SunflowerFactory.getInstance();
 
@@ -36,6 +39,11 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
         zombies = new ArrayList<>();
         money = 100;
         System.out.println("Garden: plant holder");
+        /*movables.put(0,new ArrayList<Movable>());
+        movables.put(1,new ArrayList<Movable>());
+        movables.put(2,new ArrayList<Movable>());
+        movables.put(3,new ArrayList<Movable>());
+        movables.put(4,new ArrayList<Movable>());*/
     }
 
     public static Garden getInstance(){
@@ -59,10 +67,9 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
             money -= newPlant.getPrice();
             lots[row][col]=newPlant;
             Map<String,Object> newState = packState();
-            firePropertyChange("planted", null, newState);
-            updateProgress();
+            firePropertyChange("render", null, newState);
         } catch (NotEnoughMoneyException | InCooldownException e) {
-            firePropertyChange("plant failed",null,"plant "+plantName+" failed."+e.getMessage());
+            firePropertyChange("plant failed",null,"plant "+plantName+" failed. "+e.getMessage());
             //System.out.println(e.getMessage());
         }   
         
@@ -74,14 +81,14 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
         }else{
             lots[row][col] = null; //hopefully it get garbage collected..
             packState();
-            firePropertyChange("plant removed",null,packState());
+            firePropertyChange("render",null,packState());
         }
     }
     //game progress not updated
     public void collectSuns(){
         money += suns*25;
         suns = 0;
-        firePropertyChange("sun collected",null,packState());
+        firePropertyChange("render",null,packState());
     }
 
     public void idle(int rounds){
@@ -90,7 +97,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
             updateProgress();
         }
         idle = false;
-        firePropertyChange("back", null, packState());
+        firePropertyChange("render", null, packState());
     }
 
     private void updateProgress(){
@@ -105,15 +112,35 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
 			}
         }
         
-        for(Movable m : movables){
+        Iterator<Movable> itr = movables.iterator();
+            
+        while(itr.hasNext()) {
+            Movable m = (Movable)itr.next();
             m.propagate();
+            if(!checkBound(m)){
+                itr.remove();
+            }
         }
+
+        /*for(Integer i : movables.keySet()){
+            for(Movable m : movables.get(i)){
+                m.propagate();
+            }
+            Iterator<Movable> itr = movables.get(i).iterator();
+            
+            while(itr.hasNext()) {
+                Movable m = (Movable)itr.next();
+                if(!checkBound(m)){
+                    itr.remove();
+                }
+            }
+        }*/
         if(gameProgress%3==0) dropSun();
     }
     //garden or sunflower is dropping sun
     private void dropSun(){
         suns++;
-        if(!idle)firePropertyChange("sun droped",null,packState());
+        if(!idle)firePropertyChange("render",null,packState());
     }
 
 
@@ -138,21 +165,18 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
                 dropSun();
                 break;
             case "fire green pea":
-                movables.add((Greenpea)evt.getNewValue());
+                //int row = ((Greenpea)evt.getNewValue()).getRow();
+                Movable m = (Greenpea)evt.getNewValue();
+                movables.add(m);
                 break;
-            case "propagate pea":
-                if(checkBound((Greenpea)evt.getSource())){
-                    firePropertyChange("render",null , packState());;
-                }else{
-                    movables.remove((Greenpea)evt.getSource());
-                }
+           
         }
     }
 
 
     private boolean checkBound(Movable movable){
         double position = movable.getPosition();
-        if(position>screenWidth){
+        if(position>=screenWidth){
             return false;
         }else{
             return true;

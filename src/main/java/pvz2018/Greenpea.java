@@ -25,9 +25,9 @@ public class Greenpea extends Movable{
     public void propagate(){
         displacement+=speed;
         //Math.floor(variable)
-        if ((displacement == Math.floor(displacement)) && !Double.isInfinite(displacement)) {
+        /*if ((displacement == Math.floor(displacement)) && !Double.isInfinite(displacement)) {
             firePropertyChange("propagate pea", null, new int[]{row,(int)Math.floor(displacement)});
-        }     
+        }*/     
     }
 
     @Override

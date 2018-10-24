@@ -74,7 +74,7 @@ public class View{
     public void next(){
         while(true){
 
-			Pattern commandRegex = Pattern.compile("(\\w+)\\s");//finding a command
+			Pattern commandRegex = Pattern.compile("(\\w+)\\s*");//finding a command
 			
 			Pattern plantCommand = Pattern.compile("(plant)\\s+(sunflower|peashooter)\\s+([0-4])\\s+([0-7])");
 			Pattern digCommand = Pattern.compile("(dig)\\s+([0-4])\\s+([0-7])");
@@ -95,7 +95,7 @@ public class View{
 				Object[] commandInfo =null;
 				//String commandName = matcher.group(1);
 				String commandName = matcher.group(1);
-				console.printf(commandName+"\n");
+				console.printf("_"+commandName+"_\n");
 				switch(commandName.trim()){
 					case "plant":	
 						matcher = plantCommand.matcher(command);
@@ -163,32 +163,13 @@ public class View{
 		//console.printf(e.getPropertyName());
 		switch(e.getPropertyName()){
 
-			case "planted":
-				unpackState((Map<String,Object>)e.getNewValue());
-				printGame();
-				break;
-			case "plant removed":
-				unpackState((Map<String,Object>)e.getNewValue());
-				printGame();
-				break;
-			case "sun droped":
-				console.printf("new sun\n");
-				suns++;
-				printGame();
-				break;
-			case "sun collected":
-				unpackState((Map<String,Object>)e.getNewValue());
-				printGame();
-				break;
-			case "back":
-				unpackState((Map<String,Object>)e.getNewValue());
-				printGame();
-				break;
+
 			case "plant failed":
 				console.printf((String)e.getNewValue());
 				break;
 			case "render":
-
+				unpackState((Map<String,Object>)e.getNewValue());
+				printGame();
 				break;
 			default:
 				console.printf("unknown model change...omg...");
