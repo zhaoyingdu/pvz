@@ -72,33 +72,63 @@ public class View{
 
 
     public void next(){
-        //"plant\s"
-        Pattern commandRegex = Pattern.compile("(plant)\\s+(sunflower|peashooter)\\s+([0-4])\\s+([0-7])");
-        String command=console.readLine("enter command:\n"+
-                        "plant [plant name] [row] [column]\n"+
-						"dig [row] [column]\n>"+
-						"collect"+
-						"idle [rounds]");
-        Matcher matcher = commandRegex.matcher(command); 
-		if(matcher.find()){
-			Object[] commandInfo =null;
-			String commandName = matcher.group(1);
-			switch(commandName){
-				case "plant":				
-					String plantName = matcher.group(2);
-					int row = Integer.parseInt(matcher.group(3));
-					int col = Integer.parseInt(matcher.group(4));
-					commandInfo = new Object[]{commandName,plantName,row,col};
-					break;
-				case "collect":
-					commandInfo = new Object[]{commandName};
-					break;
-				case "idle":
-					int rounds = Integer.parseInt(matcher.group(2));
-					commandInfo = new Object[]{commandName,rounds};
-					break;
+        while(true){
+
+			Pattern commandRegex = Pattern.compile("(\\w+)\\s");//finding a command
+			
+			Pattern plantCommand = Pattern.compile("(plant)\\s+(sunflower|peashooter)\\s+([0-4])\\s+([0-7])");
+			Pattern digCommand = Pattern.compile("(dig)\\s+([0-4])\\s+([0-7])");
+			Pattern collectCommand = Pattern.compile("collect");
+			Pattern idleCommand = Pattern.compile("(idle)\\s+([0-9])");
+
+
+			String command=console.readLine("enter command:\n"+
+							">plant [plant name] [row] [column]\n"+
+							">dig [row] [column]\n>"+
+							">collect\n"+
+							">idle [rounds]\n"+
+							">exit\n"+
+							">");
+			Matcher matcher = commandRegex.matcher(command); 
+			if(matcher.find()){
+				Object[] commandInfo =null;
+				//String commandName = matcher.group(1);
+				String commandName = matcher.group(1);
+				console.printf(commandName+"\n");
+				switch(commandName){
+					case "plant":	
+						matcher = plantCommand.matcher(command);
+						if(matcher.find()){
+							String plantName = matcher.group(2);
+							int row = Integer.parseInt(matcher.group(3));
+							int col = Integer.parseInt(matcher.group(4));
+							commandInfo = new Object[]{commandName,plantName,row,col};
+						}else{
+							console.printf("plant command not correct");
+						}
+						break;
+					case "collect":
+						matcher = collectCommand.matcher(command);
+						if(matcher.find()){
+							commandInfo = new Object[]{commandName};
+						}else{
+							console.printf("collect command not correct");
+						}
+						break;
+					case "idle":
+						matcher = idleCommand.matcher(command);
+						if(matcher.find()){
+							int rounds = Integer.parseInt(matcher.group(2));
+							commandInfo = new Object[]{commandName,rounds};
+						}else{
+							console.printf("idle command not correct");
+						}
+						break;
+					case "exit":
+						System.exit(0);
+				}
+				gc.nextStep(commandInfo);
 			}
-			gc.nextStep(commandInfo);
 		}
     }
 
@@ -132,13 +162,22 @@ public class View{
 				money = (int)e.getNewValue();
 				printGame();
 				break;
-			case "back";
-				
+			case "back":
+				unpackState((Map<String,Object>)e.getNewValue());
+				break;
 			default:
 				console.printf("unknown model change...omg...");
 		}
 	}
 	//utility to update the view;
+
+	private void unpackState(Map<String,Object> state){
+		suns=(int)state.get("suns");
+		money=(int)state.get("money");
+		//parseLayout((Plant[][])state.get("layout"));
+		printGame();
+	}
+
 	private void updateCD(char plantInitial){
 		switch(plantInitial){
 			case 's':
@@ -150,6 +189,20 @@ public class View{
 				break;
 			default:
 
+		}
+	}
+
+
+	private void parseLayout(Plant[][] layout){
+		int rows=layout.length;
+		int cols = layout[0].length;
+		
+		for(int row = 0;row<rows;row++){
+			for(int col = 0; col<cols;col++){
+				if(layout[row][col]!=null){
+					gardenView.setCharAt(18+row*18+2+col*2,layout[row][col].getName().charAt(0));
+				}
+			}
 		}
 	}
 	

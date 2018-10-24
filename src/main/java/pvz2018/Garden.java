@@ -25,7 +25,7 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
     List<Zombie> zombies;
 
 
-    Map<String,Object> state = new HashMap<>();
+    
 
 
     public Garden(){
@@ -67,7 +67,7 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
         for(int i=0; i<rounds;i++){
             updateProgress();
         }
-        firePropertyChange("back", null, null);
+        firePropertyChange("back", null, packState());
     }
 
     private void updateProgress(){
@@ -81,21 +81,13 @@ public class Garden extends AbstractGarden{// extends AbstractModel{
     }
 
 
-    private void packState(){
+    private Map<String,Object> packState(){  
+        Map<String,Object> state = new HashMap<>();
         state.put("game layout",layout);
         state.put("suns",suns);
         state.put("money",money);
-        
-        Plant[][] layout = new Plant[layoutHeight][layoutWidth];
 
-
-        int gameProgress = 0;
-        
-        int suns=0;
-        int money;
-
-        boolean idle = false;
-        List<Zombie> zombies;
+        return state;
     }
 
     

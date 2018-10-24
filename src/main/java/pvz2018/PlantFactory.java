@@ -4,6 +4,9 @@ import java.lang.reflect.Field;
 
 public class PlantFactory {
     
+    Sunflower sunflowerFactory = SunflowerFactory.getInstance();
+
+
     public PlantFactory(){}
 
     public Plant createPlant(Garden garden, String plantName){
@@ -40,7 +43,7 @@ public class PlantFactory {
                     }
                     
                 }else{
-                    return null;
+                    Sunflower.deceaseCD();
                 }
                 newPlant = new Sunflower();
                 break;

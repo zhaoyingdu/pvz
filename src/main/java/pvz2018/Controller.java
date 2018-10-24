@@ -42,7 +42,7 @@ public class Controller implements PropertyChangeListener{
                 garden.collectSuns();
                 break;
             case "idle":
-                garden.idle(stepInfo[1]);
+                garden.idle((int)stepInfo[1]);
                 break;
                 
         }
