@@ -223,6 +223,17 @@ public class View{
 
 	}
 
+	public void render(ArrayList<String> content){
+		int row,col;
+		String[] element;// = content.split(" ");
+		for(String s:content){
+			element = s.split(" ");
+			row =  Integer.parseInt(element[1]);
+			col =  Integer.parseInt(element[1]);
+			gardenView.setCharAt(18+row*18+2+col*2,element[0].charAt(0));
+		}
+	}
+
 	public void parseLayout(Plant[][] layout){
 
 		int rows=layout.length;

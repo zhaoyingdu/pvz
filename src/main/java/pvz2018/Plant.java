@@ -20,7 +20,13 @@ public abstract class Plant {
 	public abstract String getName();
 	public abstract int getPrice();
     public abstract void decreaseHealth(int damage);
-    public abstract void grow();
+	public abstract void grow();
+	public int getRow(){
+		return row;
+	}
+	public int getCol(){
+		return col;
+	}
 	//public abstract boolean produceSun();
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {

@@ -16,6 +16,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     int lotWidth = 8;
     int lotHeight = 5;
     Plant[][] lots = new Plant[lotHeight][lotWidth];
+    List<Plant> plants = new ArrayList<>();
     List<Movable> movables = new ArrayList<>();
 
     //Map<Integer,List<Movable>> movables = new HashMap<>();
@@ -183,4 +184,16 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
         }
     }
     
+
+    private void formLayoutMessage(){
+        ArrayList<String> layoutMessage = new ArrayList<>();
+        String pixelMessage;
+        for(int i =0;i<lotHeight;i++){
+            for (int j=0;j<lotWidth;j++){
+                if(lots[i][j]!=null){
+                    pixelMessgae = lots[i][j]
+                }
+            }
+        }
+    }
 }
