@@ -12,6 +12,8 @@ import java.util.Iterator;
 public class Garden extends AbstractGarden implements PropertyChangeListener{// extends AbstractModel{
 
     PlantFactory plantFactory = new PlantFactory();
+    GardenDOM gardenDOM = GardenDOM.getInstance();
+
     int screenWidth = 15;
     int lotWidth = 8;
     int lotHeight = 5;
@@ -36,17 +38,14 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
 
     private Garden(){
         super();
+        gardenDOM.createNewXML();
         System.out.println("Garden: new garden.");
-        zombies = new ArrayList<>();
         money = 100;
-        System.out.println("Garden: plant holder");
-        /*movables.put(0,new ArrayList<Movable>());
-        movables.put(1,new ArrayList<Movable>());
-        movables.put(2,new ArrayList<Movable>());
-        movables.put(3,new ArrayList<Movable>());
-        movables.put(4,new ArrayList<Movable>());*/
     }
 
+    /*public int getSuns(){return suns;}
+    public int getMoney(){return money;}
+    public int getGameProgress(){return gameProgress;}*/
     public static Garden getInstance(){
         if(garden==null){
             garden = new Garden();
@@ -67,8 +66,9 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
 
             money -= newPlant.getPrice();
             lots[row][col]=newPlant;
-            Map<String,Object> newState = packState();
-            firePropertyChange("render", null, newState);
+           // Map<String,Object> newState = packState();
+    
+            firePropertyChange("render", null, gardenDOM.parseGardenXML());
         } catch (NotEnoughMoneyException | InCooldownException e) {
             firePropertyChange("plant failed",null,"plant "+plantName+" failed. "+e.getMessage());
             //System.out.println(e.getMessage());
@@ -144,6 +144,12 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
         if(!idle)firePropertyChange("render",null,packState());
     }
 
+    private ArrayList<String> packState_2(){
+        gardenDOM.updateStatus(money, gameProgress, suns);
+        gardenDOM.updateStatic(plants);
+        gardenDOM.updateMovable(movables);
+
+    }
 
     private Map<String,Object> packState(){  
         Map<String,Object> state = new HashMap<>();
