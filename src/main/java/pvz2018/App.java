@@ -14,7 +14,7 @@ public class App
     {
         Controller ctl = new Controller();
 		View ui = new View(ctl);
-        ctl.attachView(ui);
+        //ctl.attachView(ui);
        
     
             

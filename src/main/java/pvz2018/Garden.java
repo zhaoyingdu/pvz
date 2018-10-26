@@ -14,9 +14,10 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     PlantFactory plantFactory = new PlantFactory();
     GardenDOM gardenDOM = GardenDOM.getInstance();
 
-    int screenWidth = 15;
+    //int screenWidth = 15;
     int lotWidth = 8;
     int lotHeight = 5;
+    Lot[][] lot = new Lot[lotHeight][lotWidth];
     Plant[][] lots = new Plant[lotHeight][lotWidth];
     List<Plant> plants = new ArrayList<>();
     List<Movable> movables = new ArrayList<>();
@@ -31,31 +32,33 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     int money ;
 
     boolean idle = false;
-    List<Zombie> zombies;
+    //List<Zombie> zombies;
 
 
     private static Garden garden;
-
     private Garden(){
         super();
         gardenDOM.createNewXML();
         System.out.println("Garden: new garden.");
         money = 100;
+        for(int i=0;i<lotHeight;i++){
+            for(int j=0;j<lotWidth;j++){
+                lot[i][j]=new Lot();
+            }
+        }
+
     }
 
-    /*public int getSuns(){return suns;}
-    public int getMoney(){return money;}
-    public int getGameProgress(){return gameProgress;}*/
     public static Garden getInstance(){
         if(garden==null){
             garden = new Garden();
-            System.out.println("new garden hahaha....");
+            //System.out.println("new garden hahaha....");
         }
         return garden;
     }
 
     public void plantDefense(String plantName, int row, int col){
-        System.out.println("Garden-plantDefense");
+        //System.out.println("Garden-plantDefense");
         if(lots[row][col] != null){
             System.out.println("slot occupied");
             return;
@@ -66,9 +69,9 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
 
             money -= newPlant.getPrice();
             lots[row][col]=newPlant;
-           // Map<String,Object> newState = packState();
-    
-            firePropertyChange("render", null, gardenDOM.parseGardenXML());
+          
+            plants.add(newPlant);
+            firePropertyChange("planted", null, packState());
         } catch (NotEnoughMoneyException | InCooldownException e) {
             firePropertyChange("plant failed",null,"plant "+plantName+" failed. "+e.getMessage());
             //System.out.println(e.getMessage());
@@ -95,14 +98,22 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     public void idle(int rounds){
         idle = true;
         for(int i=0; i<rounds;i++){
-            updateProgress();
+            updateGame();
         }
         idle = false;
         firePropertyChange("render", null, packState());
     }
 
-    private void updateProgress(){
+    private void updateGame(){
         gameProgress++;
+        if(gameProgress%3==0){
+            suns++;
+        }
+        updatePlants();
+        updateMovable();
+        generateZombie();
+    }
+    private void updatePlants(){
         plantFactory.decreaseCD();
         for(int row = 0;row<lotHeight;row++){
 			for(int col = 0; col<lotWidth;col++){
@@ -113,54 +124,63 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
 			}
         }
         
-        Iterator<Movable> itr = movables.iterator();
-            
+        
+    }
+
+    private void updateMovable(){
+        Iterator<Movable> itr = movables.iterator();    
+        //remove out of bound armos
         while(itr.hasNext()) {
             Movable m = (Movable)itr.next();
-            m.propagate();
-            if(!checkBound(m)){
-                itr.remove();
-            }
-        }
-
-        /*for(Integer i : movables.keySet()){
-            for(Movable m : movables.get(i)){
-                m.propagate();
-            }
-            Iterator<Movable> itr = movables.get(i).iterator();
-            
-            while(itr.hasNext()) {
-                Movable m = (Movable)itr.next();
+            if(m.propagate()==false){//movable has move to next lot
                 if(!checkBound(m)){
                     itr.remove();
+                }else{
+                    switch(m.getName()){
+                        case "greenpea":
+                            lot[m.getRow()][m.getCol()].addGreenpea((Greenpea)m);
+                            break;
+                        case "zombie":
+                            lot[m.getRow()][m.getCol()].addZombie((Zombie)m);
+                            break;
+                    }                 
                 }
+            }  
+        }
+        
+        removeDeadZombieAndCollidedAmo();
+    }
+
+    private void generateZombie(){
+        if(gameProgress%5==0){
+            Zombie zombie = new Zombie(1,lotWidth-1);
+            movables.add(zombie);
+            lot[zombie.getRow()][zombie.getCol()].addZombie(zombie);
+        }
+    }
+
+    private void removeDeadZombieAndCollidedAmo(){
+        ArrayList<Movable> remove = new ArrayList<>();
+        for(int i=0;i<lotHeight;i++){
+            for(int j=0;j<lotWidth;j++){
+                remove.addAll(lot[i][j].checkSanity());
             }
-        }*/
-        if(gameProgress%3==0) dropSun();
+        }
+        for(Movable m:remove){
+            movables.remove(m);
+        }
     }
     //garden or sunflower is dropping sun
-    private void dropSun(){
-        suns++;
-        if(!idle)firePropertyChange("render",null,packState());
-    }
 
-    private ArrayList<String> packState_2(){
+    private ArrayList<String> packState(){
         gardenDOM.updateStatus(money, gameProgress, suns);
-        gardenDOM.updateStatic(plants);
-        gardenDOM.updateMovable(movables);
-
+        gardenDOM.updateDOM(movables,plants);
+        //gardenDOM.updateStatic(plants);
+        //gardenDOM.updateMovable(movables);
+        return gardenDOM.parseGardenXML();
     }
 
-    private Map<String,Object> packState(){  
-        Map<String,Object> state = new HashMap<>();
-        state.put("layout",lots);
-        state.put("suns",suns);
-        state.put("money",money);
-        state.putAll(plantFactory.getFactoriesCD());
-        state.put("movables",movables);
-
-        return state;
-    }
+   
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -169,12 +189,14 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
                 int[] plantinfo = (int[])evt.getNewValue();
                 String log = "sunflower at "+ plantinfo[0]+" "+plantinfo[1];
                 System.out.println(log);
-                dropSun();
+                suns++;
                 break;
             case "fire green pea":
                 //int row = ((Greenpea)evt.getNewValue()).getRow();
                 Movable m = (Greenpea)evt.getNewValue();
                 movables.add(m);
+                lot[m.getRow()][m.getCol()].addGreenpea((Greenpea)m);
+                //greenpeas[m.getRow()][(int)Math.floor(m.getPosition())]
                 break;
            
         }
@@ -182,24 +204,14 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
 
 
     private boolean checkBound(Movable movable){
-        double position = movable.getPosition();
-        if(position>=screenWidth){
+        int col = movable.getCol();
+        if(col>=lotWidth || col<0){
             return false;
         }else{
             return true;
         }
     }
     
-
-    private void formLayoutMessage(){
-        ArrayList<String> layoutMessage = new ArrayList<>();
-        String pixelMessage;
-        for(int i =0;i<lotHeight;i++){
-            for (int j=0;j<lotWidth;j++){
-                if(lots[i][j]!=null){
-                    pixelMessgae = lots[i][j]
-                }
-            }
-        }
-    }
+    
+    
 }

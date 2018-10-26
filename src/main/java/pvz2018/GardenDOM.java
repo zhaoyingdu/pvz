@@ -32,6 +32,8 @@ public class GardenDOM{
     private GardenDOM(){};
 
     private ArrayList<String> localStatics = new ArrayList<>();
+    private ArrayList<String> localMovables = new ArrayList<>();
+    
     public static GardenDOM getInstance(){
         if(gardenDOM == null){
             return new GardenDOM();
@@ -116,10 +118,79 @@ public class GardenDOM{
 		}
     }
 
+    private void addElement(Map<String, String> objInfo){
+        String parentTagName = objInfo.get("parentTagName");
+        String tagName = objInfo.get("tagName");
+        String hashCode = objInfo.get("id");
+        String rowValue = objInfo.get("row");
+        String colValue = objInfo.get("col");
+        //String parentTagName = objInfo.get("parentTagName");
+
+        File inputFile = new File("garden.xml");
+
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dbBuilder;
+        try {
+            dbBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dbBuilder.parse(inputFile);
+            Node parentNode = doc.getElementsByTagName(parentTagName).item(0);
+            Element newChild = doc.createElement(tagName);
+            Attr id = doc.createAttribute("id");
+            id.setValue(hashCode);
+            newChild.setAttributeNode(id);
+            newChild.setIdAttributeNode(id, true);
+                Element row = doc.createElement("row");
+                row.appendChild(doc.createTextNode(rowValue));
+                newChild.appendChild(row);
+                Element col = doc.createElement("col");
+                col.appendChild(doc.createTextNode(colValue));
+                newChild.appendChild(col);
+            if(parentNode.getNodeType()==Node.ELEMENT_NODE){
+                Element staticElement = (Element)parentNode;
+                staticElement.appendChild(newChild);
+            }
+            switch(parentTagName){
+                case "static":
+                    localStatics.add(hashCode);
+                    break;
+                case "movable":
+                    localMovables.add(hashCode);
+                    break;
+
+            }
+
+           
+            
+
+           
+
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File("./garden.xml"));
+            transformer.transform(source, result);
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+        } catch (TransformerConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        
+    }
 
 
-
-    private void addStatic(Plant plant){
+    /*private void addStatic(Plant plant){
         File inputFile = new File("garden.xml");
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -172,103 +243,83 @@ public class GardenDOM{
         }
         
         
+    }*/
+
+
+    public void updateDOM(List<Movable> movables, List<Plant> plants){
+        Map<String,Plant> gardenStatics = new HashMap<>();
+        Map<String,Movable> gardenMovables = new HashMap<>();
+        for(Plant p:plants){
+            gardenStatics.put(Integer.toString(p.hashCode()),p);    
+        }
+
+        //remove digged
+        for(String id:localStatics){
+            if(!gardenStatics.containsKey(id)){
+                deleteElement("static",id);
+            }
+        }
+        for(String id:gardenStatics.keySet()){
+            if(!localStatics.contains(id)){
+                Map<String,String> newElement = new HashMap<>();
+                newElement.put("parentTagName","static");
+                newElement.put("tagName",gardenStatics.get(id).getName());
+                newElement.put("id",id);
+                newElement.put("row",Integer.toString(gardenStatics.get(id).getRow()));
+                newElement.put("col",Integer.toString(gardenStatics.get(id).getCol()));
+                addElement(newElement);
+            }
+        }
+
+        //Map<String,Movable> gardenMovables = new HashMap<>();
+        for(Movable p:movables){
+            gardenMovables.put(Integer.toString(p.hashCode()),p);    
+        }
+
+        
+        for(String id:localMovables){
+            if(!gardenMovables.containsKey(id)){
+                deleteElement("movable",id);
+            }
+        }
+        for(String id:gardenMovables.keySet()){
+            if(!localMovables.contains(id)){
+                Map<String,String> newElement = new HashMap<>();
+                newElement.put("parentTagName","movable");
+                newElement.put("tagName",gardenMovables.get(id).getName());
+                newElement.put("id",id);
+                newElement.put("row",Integer.toString(gardenMovables.get(id).getRow()));
+                newElement.put("col",Integer.toString(gardenMovables.get(id).getCol()));
+                addElement(newElement);
+            }
+        }
     }
 
-
-
-    public void updateStatic(List<Plant> plants){
-
+    /*public void updateStatic(List<Plant> plants){
         Map<String,Plant> gardenStatics = new HashMap<>();
         for(Plant p:plants){
             gardenStatics.put(Integer.toString(p.hashCode()),p);    
             //ids.add(Integer.toString(p.hashCode()));
         }
 
-
-        /*ArrayList<String> ids = new ArrayList<>();
-        for(Plant p:plants){
-            ids.add(Integer.toString(p.hashCode()));
+        //remove digged
+        for(String id:localStatics){
+            if(!gardenStatics.containsKey(id)){
+                deleteStatic(id);
+            }
+        }
+        for(String id:gardenStatics.keySet()){
+            if(!localStatics.contains(id)){
+                addStatic(gardenStatics.get(id));
+            }
         }
 
-        //for()
-
-
-        File inputFile = new File("./garden.xml");
-
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dbBuilder;
-        try {
-            dbBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dbBuilder.parse(inputFile);
-            Node nodeStatic = doc.getElementsByTagName("static").item(0);
-            NodeList statics = nodeStatic.getChildNodes();
-            
-            //remove digged plants;
-            for(int i=0;i<statics.getLength();i++){
-                boolean found= false;
-                Node p = statics.item(i);
-                NamedNodeMap pAttrs =  p.getAttributes();
-                Node idAttrNode = pAttrs.getNamedItem("id");
-                if(idAttrNode.getNodeType()==Node.ATTRIBUTE_NODE){
-                    Attr idAttr = (Attr)idAttrNode;
-                    for(String id: ids){
-                        if(idAttr.getValue() == id){
-                            found = true;
-                        }
-                    }
-                    if(!found){
-                        nodeStatic.removeChild(p);
-                    }else{
-                        found =false;
-                    }
-                }
-                //pAttr.getNamedItem("id").getValue();
-            }
-
-
-            //add new plants
-            for(Plant p:plants){
-                for(int i=0;i<statics.getLength();i++){
-                    boolean found= false;
-                    Node p = statics.item(i);
-                    NamedNodeMap pAttrs =  p.getAttributes();
-                    Node idAttrNode = pAttrs.getNamedItem("id");
-                    if(idAttrNode.getNodeType()==Node.ATTRIBUTE_NODE){
-                        Attr idAttr = (Attr)idAttrNode;
-                        for(String id: ids){
-                            if(idAttr.getValue() == id){
-                                found = true;
-                            }
-                        }
-                        if(!found){
-                            nodeStatic.removeChild(p);
-                        }else{
-                            found =false;
-                        }
-                    }
-                    //pAttr.getNamedItem("id").getValue();
-                }
-            }
-
-
-
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-
-    }
+    }*/
 
 
 
     
-    public void testID(Plant p){
+    /*public void testID(Plant p){
         File inputFile = new File("./garden.xml");
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -294,7 +345,7 @@ public class GardenDOM{
         }
 
 
-    }
+    }*/
 
     
 
@@ -312,7 +363,7 @@ public class GardenDOM{
             nodeSuns.setTextContent(Integer.toString(suns));
             Node nodeGameProgress = doc.getElementsByTagName("gameProgress").item(0);
             nodeGameProgress.setTextContent(Integer.toString(gameProgress));
-
+           
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
@@ -338,10 +389,8 @@ public class GardenDOM{
         
     }
 
-
-
-    public void deleteStatic(Plant plant){
-        String id = Integer.toString(plant.hashCode());
+    /*private void deleteStatic(String id){
+        //String id = Integer.toString(plant.hashCode());
         
         File inputFile = new File("./garden.xml");
 
@@ -363,7 +412,7 @@ public class GardenDOM{
             Iterator<String> localStaticsItr = localStatics.iterator();
             while(localStaticsItr.hasNext()){
                 String s = localStaticsItr.next();
-                if(s==Integer.toString(plant.hashCode())){
+                if(s==id){
                     localStaticsItr.remove();
                 }
             }
@@ -373,14 +422,76 @@ public class GardenDOM{
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(inputFile);
             transformer.transform(source, result);
-            //NodeList statics = staticNode.getChildNodes();
+
+
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TransformerConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }*/
+
+    private void deleteElement(String parentTagName, String id){
+        //String id = Integer.toString(plant.hashCode());
+        
+        File inputFile = new File("./garden.xml");
+
+        try {
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse(inputFile);
+
+            Node parentNode = doc.getElementsByTagName(parentTagName).item(0);
+            NodeList childNodes = parentNode.getChildNodes();
+            for(int i = 0;i<childNodes.getLength();i++){
+                Node node = childNodes.item(i);
+                if(node.getNodeType()==Node.ELEMENT_NODE){
+                    Element nodeElem = (Element)node;
+                    if(nodeElem.getAttribute("id").equals(id)) parentNode.removeChild(node);
+                }
+            }
+
+
+            switch(parentTagName){
+                case "static":
+                    Iterator<String> localStaticsItr = localStatics.iterator();
+                    while(localStaticsItr.hasNext()){
+                        String s = localStaticsItr.next();
+                        if(s==id){
+                            localStaticsItr.remove();
+                        }
+                    }
+                    break;
+                case "movable":
+                    Iterator<String> localMovableItr = localMovables.iterator();
+                    while(localMovableItr.hasNext()){
+                        String s = localMovableItr.next();
+                        if(s==id){
+                            localMovableItr.remove();
+                        }
+                    }
+                    break;
+            }
             
-            /*for(int i = 0;i<statics.getLength();i++){
-                Node node = statics.item(i);
-                
-                
-                String nodeID = 
-            }*/
+
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(inputFile);
+            transformer.transform(source, result);
+
 
         } catch (ParserConfigurationException e) {
             // TODO Auto-generated catch block
@@ -401,8 +512,9 @@ public class GardenDOM{
 
     }
 
+    
 
-
+    
     private ArrayList<String> parseStatus(Node node){
         ArrayList<String> ret = new ArrayList<>();
         
@@ -423,7 +535,7 @@ public class GardenDOM{
         return ret;
     }
 
-    private ArrayList<String> parseStatic(Node node){
+    /*private ArrayList<String> parseStatic(Node node){
         ArrayList<String> ret = new ArrayList<>();
         
         NodeList staticList = node.getChildNodes();
@@ -437,6 +549,41 @@ public class GardenDOM{
             type = staticList.item(i).getNodeName().charAt(0);
             //+staticList.item(i));
             NodeList rowAndCol = staticList.item(i).getChildNodes();
+            for(int j=0;j<rowAndCol.getLength();j++){
+                if(rowAndCol.item(j).getNodeName()=="row"){
+                    row = rowAndCol.item(j).getTextContent().charAt(0);
+                }
+                if(rowAndCol.item(j).getNodeName()=="col"){
+                    col = rowAndCol.item(j).getTextContent().charAt(0);
+                }
+            }
+
+            ret.add(type+" "+row+" "+col);
+        }
+        return ret;
+    }*/
+
+
+    private ArrayList<String> parseStaticMovable(Node node){
+        ArrayList<String> ret = new ArrayList<>();
+        
+        NodeList childList = node.getChildNodes();
+
+
+        //NodeList staticList = childs.item(i).getChildNodes();
+        char type;
+        char row='-';
+        char col='-';
+        Node n;
+        for(int i = 0;i<childList.getLength();i++){
+            n= childList.item(i);
+            if(n.getNodeName()=="greenpea"){
+                type = 'o';
+            }else{
+                type = n.getNodeName().charAt(0);
+            }
+            //+staticList.item(i));
+            NodeList rowAndCol = n.getChildNodes();
             for(int j=0;j<rowAndCol.getLength();j++){
                 if(rowAndCol.item(j).getNodeName()=="row"){
                     row = rowAndCol.item(j).getTextContent().charAt(0);
@@ -463,23 +610,18 @@ public class GardenDOM{
             doc.getDocumentElement().normalize();
             Node root = doc.getDocumentElement();
 
-            NodeList childs = root.getChildNodes();
+            NodeList childs = root.getChildNodes();//status, static and movable
+
 
             for(int i = 0;i<childs.getLength();i++){
                 if(childs.item(i).getNodeName()=="status"){
                     ret.addAll(parseStatus(childs.item(i)));
                 }
-                if(childs.item(i).getNodeName()=="static"){
-                    ret.addAll(parseStatic(childs.item(i)));
+                if(childs.item(i).getNodeName()=="static"||childs.item(i).getNodeName()=="movable"){
+                    ret.addAll(parseStaticMovable(childs.item(i)));//static or movable
                 }
-                if(childs.item(i).getNodeName()=="movable"){
-                    //need implementation
-                }
-
             }
-            
-
-            
+                       
         } catch (ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -497,7 +639,7 @@ public class GardenDOM{
     }
 
 
-    public static void main (String[] args){
+   /* public static void main (String[] args){
         GardenDOM garden = GardenDOM.getInstance();
         garden.createNewXML();
         Sunflower sf = new Sunflower(2,3);
@@ -505,15 +647,15 @@ public class GardenDOM{
         garden.addStatic(sf);
         garden.addStatic(ps);
         garden.testID(ps);
-        //garden.deleteStatic(sf);
+        garden.deleteStatic(sf);
 
-       /* ArrayList<String> str = garden.parseGardenXML();
+        ArrayList<String> str = garden.parseGardenXML();
         for(String i: str){
             System.out.println(" ");
             System.out.println("_"+i+"_");
 
-        }*/
-    }
+        }
+    }*/
 
 
 }
