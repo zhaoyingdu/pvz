@@ -1,8 +1,10 @@
 package pvz2018;
 
-import static org.junit.Assert.assertTrue;
+//import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
+import java.util.ArrayList;
+import org.junit.jupiter.api.Test;
+//import org.junit.Test;
 
 /**
  * Unit test for simple App.
@@ -10,11 +12,18 @@ import org.junit.Test;
 public class AppTest 
 {
     /**
-     * Rigorous Test :-)
+     * test layout renderer
      */
+    
+
     @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
+    public void justAnExample() {
+        System.out.println("This test method should be run");
     }
+
+    /*@Test
+    public void testRender(){
+
+    }*/
+
 }

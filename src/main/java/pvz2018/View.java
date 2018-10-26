@@ -34,6 +34,9 @@ public class View{
 						"4 _ _ _ _ _ _ _ _\n");
 	int suns = 0;
 	int money = 0;
+	int gameProgress =0;
+	int sunflowerCD = 0;
+	int peashooterCD =0;
     String statusView = "suns: "+suns+" money: "+money+"\n";
 	//String welcome = 
 	public View(Controller controller){
@@ -141,6 +144,9 @@ public class View{
 							System.exit(0);
 						}
 						break;
+					default:
+						console.printf("unrecognized command.\n");
+						continue;
 						
 				}
 				gc.nextStep(commandInfo);
@@ -163,13 +169,16 @@ public class View{
 		//console.printf(e.getPropertyName());
 		switch(e.getPropertyName()){
 
-
+			case "planted":
+				render((ArrayList<String>)e.getNewValue());
+				break;
 			case "plant failed":
 				console.printf((String)e.getNewValue());
 				break;
 			case "render":
-				unpackState((Map<String,Object>)e.getNewValue());
-				printGame();
+				render((ArrayList<String>)e.getNewValue());
+				//unpackState((Map<String,Object>)e.getNewValue());
+				//printGame();
 				break;
 			default:
 				console.printf("unknown model change...omg...");
@@ -177,7 +186,7 @@ public class View{
 	}
 	//utility to update the view;
 
-	private void unpackState(Map<String,Object> state){
+	/*private void unpackState(Map<String,Object> state){
 		gardenView = new StringBuilder(
 						"  0 1 2 3 4 5 6 7\n"+
                         "0 _ _ _ _ _ _ _ _\n"+
@@ -193,7 +202,7 @@ public class View{
 		renderMovables((ArrayList<Movable>)state.get("movables"));
 
 		//printGame();
-	}
+	}*/
 
 	private void renderMovables(List<Movable> movables){
 		int row;
@@ -208,7 +217,7 @@ public class View{
 			}
 		}
 	}
-	private void updateCD(Map<String,Object> state){
+	/*private void updateCD(Map<String,Object> state){
 		sunFlowerView = "Sun Flower |";//".....|\n";
 		for(int i=0;i<(int)state.get("sunflowerCD");i++){
 			sunFlowerView+='.';
@@ -221,6 +230,65 @@ public class View{
 		}
 		peaShooterView += "|\n";	
 
+	}*/
+
+	public void render(ArrayList<String> content){
+
+		ArrayList<String> str = content;
+        for(String i: str){
+            System.out.println(" ");
+            System.out.println("_"+i+"_");
+
+		}
+		
+		int row,col;
+		String[] element;// = content.split(" ");
+		for(String s:content){
+			element = s.split(" ");
+			switch(element[0]){
+				case "money":
+					money = Integer.parseInt(element[1]);
+					break;
+				case "suns":
+					suns = Integer.parseInt(element[1]);
+					break;
+				case "gameProgress":
+					gameProgress = Integer.parseInt(element[1]);
+					break;
+				case "sunflower":
+					sunFlowerView = "Sun Flower |";//".....|\n";
+					for(int i=0;i<Integer.parseInt(element[1]);i++){
+						sunFlowerView+='.';
+					}
+					sunFlowerView += "|\n";	
+					break;
+				case "peashooter":
+					peaShooterView = "Pea Shooter |";//".....|\n";
+					for(int i=0;i<Integer.parseInt(element[1]);i++){
+						peaShooterView+='.';
+					}
+					peaShooterView += "|\n";	
+					break;
+				case "s":
+				case "p":
+				case "o":
+				case "z":
+					console.printf(element[0].charAt(0)+" "+element[0]);
+					console.printf("\n");
+					console.printf("row: "+"_"+element[1]+"_");
+					console.printf("\n");
+					console.printf("col: "+"_"+element[2]+"_");
+					console.printf("\n");
+					row =  Integer.parseInt(element[1]);
+					col =  Integer.parseInt(element[2]);
+					gardenView.setCharAt(18+row*18+2+col*2,element[0].charAt(0));
+					break;
+			}
+			statusView = "suns: "+suns+". money: "+money+". rounds:"+gameProgress+"\n";
+		}
+
+		
+		printGame();
 	}
 
 	public void parseLayout(Plant[][] layout){

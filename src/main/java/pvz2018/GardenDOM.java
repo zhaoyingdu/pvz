@@ -276,6 +276,7 @@ public class GardenDOM{
             gardenMovables.put(Integer.toString(p.hashCode()),p);    
         }
 
+
         Iterator<String> localMovablesItr = localMovables.iterator();
         while(localMovablesItr.hasNext()){
             String id = localMovablesItr.next();
@@ -283,6 +284,7 @@ public class GardenDOM{
                 deleteElement("movable",id);
             }
         }
+
         /*concurrent modification error .use while and itr
         for(String id:localMovables){
             if(!gardenMovables.containsKey(id)){
@@ -292,8 +294,6 @@ public class GardenDOM{
 
 
        
-
-
 
 
         for(String id:gardenMovables.keySet()){
