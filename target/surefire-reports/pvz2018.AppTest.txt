@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: pvz2018.AppTest
 -------------------------------------------------------------------------------
-Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s - in pvz2018.AppTest
+Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s - in pvz2018.AppTest

@@ -56,8 +56,7 @@ public class Lot {
                     zombies.get(0).takeDamage(pea);
                     if(zombies.get(0).dead()){
                         ret.add(zombies.get(0));
-                        zombies.remove(zombies.get(0));//should use propertychange or something to notify garden
-                        
+                        zombies.remove(zombies.get(0));//should use propertychange or something to notify garden     
                     }
                     ret.add(pea);
                     peaItr.remove();

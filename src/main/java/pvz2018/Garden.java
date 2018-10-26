@@ -127,7 +127,10 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
         
     }
 
+
+    //propagate movable and move a movable to next slot if needed
     private void updateMovable(){
+        
         Iterator<Movable> itr = movables.iterator();    
         //remove out of bound armos
         while(itr.hasNext()) {
