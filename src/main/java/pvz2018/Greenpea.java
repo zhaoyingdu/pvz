@@ -8,6 +8,7 @@ public class Greenpea extends Movable{
         this.speed = SPEED;
         this.row = row;
         initCol = col;
+        this.col = col;
         //this.displace = col;
         displacement = 0;
         name="greenpea";

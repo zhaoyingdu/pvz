@@ -254,11 +254,24 @@ public class GardenDOM{
         }
 
         //remove digged
-        for(String id:localStatics){
+        /*for(String id:localStatics){
             if(!gardenStatics.containsKey(id)){
                 deleteElement("static",id);
             }
+        }*/
+        
+        //iter through localStatic, check every element if they exist in 
+        //gardenStatics, if no, delete the element in dom as well as the
+        //string in localStatic
+        Iterator<String> localStaticsItr = localStatics.iterator();
+        while(localStaticsItr.hasNext()){
+            String id = localStaticsItr.next();
+            if(!gardenStatics.containsKey(id)){
+                deleteElement("Static",id);
+                localStaticsItr.remove();
+            }
         }
+
         for(String id:gardenStatics.keySet()){
             if(!localStatics.contains(id)){
                 Map<String,String> newElement = new HashMap<>();
@@ -282,6 +295,7 @@ public class GardenDOM{
             String id = localMovablesItr.next();
             if(!gardenMovables.containsKey(id)){
                 deleteElement("movable",id);
+                localMovablesItr.remove();
             }
         }
 
@@ -289,7 +303,7 @@ public class GardenDOM{
         for(String id:localMovables){
             if(!gardenMovables.containsKey(id)){
                 deleteElement("movable",id);
-            }
+            }pu
         }*/
 
 
@@ -478,7 +492,7 @@ public class GardenDOM{
             }
 
 
-            switch(parentTagName){
+            /*switch(parentTagName){
                 case "static":
                     Iterator<String> localStaticsItr = localStatics.iterator();
                     while(localStaticsItr.hasNext()){
@@ -497,7 +511,7 @@ public class GardenDOM{
                         }
                     }
                     break;
-            }
+            }*/
             
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();

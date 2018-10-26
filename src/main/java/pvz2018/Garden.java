@@ -133,6 +133,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
         while(itr.hasNext()) {
             Movable m = (Movable)itr.next();
             if(m.propagate()==false){//movable has move to next lot
+                System.out.println("movable has move to next lot");
                 if(!checkBound(m)){
                     itr.remove();
                 }else{
