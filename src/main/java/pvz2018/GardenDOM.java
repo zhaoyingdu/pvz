@@ -276,12 +276,26 @@ public class GardenDOM{
             gardenMovables.put(Integer.toString(p.hashCode()),p);    
         }
 
-        
-        for(String id:localMovables){
+
+        Iterator<String> localMovablesItr = localMovables.iterator();
+        while(localMovablesItr.hasNext()){
+            String id = localMovablesItr.next();
             if(!gardenMovables.containsKey(id)){
                 deleteElement("movable",id);
             }
         }
+
+        /*concurrent modification error .use while and itr
+        for(String id:localMovables){
+            if(!gardenMovables.containsKey(id)){
+                deleteElement("movable",id);
+            }
+        }*/
+
+
+       
+
+
         for(String id:gardenMovables.keySet()){
             if(!localMovables.contains(id)){
                 Map<String,String> newElement = new HashMap<>();
