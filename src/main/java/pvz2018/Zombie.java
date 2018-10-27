@@ -11,6 +11,7 @@ public class Zombie extends Movable implements Comparable<Zombie>{
     
 
     public Zombie(int row,int col){
+       this.health=100;
         this.speed = SPEED;
         this.row = row;
         this.col = col;

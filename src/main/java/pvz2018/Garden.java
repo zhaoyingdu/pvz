@@ -132,26 +132,27 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     private void updateMovable(){
         
         Iterator<Movable> itr = movables.iterator();    
-        //remove out of bound armos
+        //remove out of bound amo
         while(itr.hasNext()) {
             Movable m = (Movable)itr.next();
             if(m.propagate()==false){//movable has move to next lot
-                System.out.println("movable has move to next lot");
+                //System.out.println("movable has move to next lot");
                 if(!checkBound(m)){
                     itr.remove();
                 }else{
                     switch(m.getName()){
                         case "greenpea":
+                            lot[m.getRow()][m.getCol()-1].removeGreenpea((Greenpea)m);
                             lot[m.getRow()][m.getCol()].addGreenpea((Greenpea)m);
                             break;
                         case "zombie":
+                            lot[m.getRow()][m.getCol()+1].removeZombie((Zombie)m);
                             lot[m.getRow()][m.getCol()].addZombie((Zombie)m);
                             break;
                     }                 
                 }
             }  
-        }
-        
+        }    
         removeDeadZombieAndCollidedAmo();
     }
 

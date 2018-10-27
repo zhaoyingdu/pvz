@@ -29,7 +29,7 @@ public class Lot {
         greenpeas.add(p);
     }
 
-    Greenpea removGreenpea(Greenpea p){
+    Greenpea removeGreenpea(Greenpea p){
         if(greenpeas.remove(p)){
             return p;
         }else{
@@ -54,7 +54,9 @@ public class Lot {
                 while(peaItr.hasNext()){
                     Greenpea pea = peaItr.next();
                     zombies.get(0).takeDamage(pea);
+                    //System.out.println("Greenpea: "+pea.hashCode()+"hit zombie: ");
                     if(zombies.get(0).dead()){
+                        //System.out.println("Zombie: "+zombies.get(0).hashCode()+"is dead.");
                         ret.add(zombies.get(0));
                         zombies.remove(zombies.get(0));//should use propertychange or something to notify garden     
                     }

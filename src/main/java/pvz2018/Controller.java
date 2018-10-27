@@ -26,7 +26,7 @@ public class Controller implements PropertyChangeListener{
     }
 
     public void propertyChange(PropertyChangeEvent e){
-        System.out.println("Propergating Event");
+        //System.out.println("Propergating Event");
         if(view!=null){
             view.gardenPropertyChange(e);
         }else{

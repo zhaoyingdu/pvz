@@ -234,12 +234,7 @@ public class View{
 
 	public void render(ArrayList<String> content){
 
-		ArrayList<String> str = content;
-        for(String i: str){
-            System.out.println(" ");
-            System.out.println("_"+i+"_");
-
-		}
+		
 		
 		int row,col;
 		String[] element;// = content.split(" ");

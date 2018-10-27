@@ -661,7 +661,11 @@ public class GardenDOM{
 			e.printStackTrace();
         }
         
-        
+        ArrayList<String> str = ret;
+        for(String i: str){
+            System.out.println("_"+i+"_");
+
+        }
         
         return ret;
     }
