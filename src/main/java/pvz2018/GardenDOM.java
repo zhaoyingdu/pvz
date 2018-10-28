@@ -249,6 +249,8 @@ public class GardenDOM{
     public void updateDOM(List<Movable> movables, List<Plant> plants){
         Map<String,Plant> gardenStatics = new HashMap<>();
         Map<String,Movable> gardenMovables = new HashMap<>();
+        Map<String,String> newProperties = new HashMap<>();//list of element to be updated
+
         for(Plant p:plants){
             gardenStatics.put(Integer.toString(p.hashCode()),p);    
         }
@@ -281,6 +283,15 @@ public class GardenDOM{
                 newElement.put("row",Integer.toString(gardenStatics.get(id).getRow()));
                 newElement.put("col",Integer.toString(gardenStatics.get(id).getCol()));
                 addElement(newElement);
+            }else{//update exsiting element with new row col properties
+                //Map<String,String> newProperties = new HashMap<>();
+                newProperties.put("parentTagName","static");
+                newProperties.put("tagName",gardenStatics.get(id).getName());
+                newProperties.put("id",id);
+                newProperties.put("row",Integer.toString(gardenStatics.get(id).getRow()));
+                newProperties.put("col",Integer.toString(gardenStatics.get(id).getCol()));
+                updateElement(newProperties);
+
             }
         }
 
@@ -319,10 +330,72 @@ public class GardenDOM{
                 newElement.put("row",Integer.toString(gardenMovables.get(id).getRow()));
                 newElement.put("col",Integer.toString(gardenMovables.get(id).getCol()));
                 addElement(newElement);
+            }else{
+                newProperties.replace("parentTagName","movable");
+                newProperties.replace("tagName",gardenMovables.get(id).getName());
+                newProperties.replace("id",id);
+                newProperties.replace("row",Integer.toString(gardenMovables.get(id).getRow()));
+                newProperties.replace("col",Integer.toString(gardenMovables.get(id).getCol()));
+                updateElement(newProperties);
+
             }
         }
+
     }
 
+    private void updateElement(Map<String,String> objInfo){
+        File inputFile = new File("./garden.xml");
+
+        String parentTagName = objInfo.get("parentTagName");
+        String tagName = objInfo.get("tagName");
+        String hashCode = objInfo.get("id");
+        String rowValue = objInfo.get("row");
+        String colValue = objInfo.get("col");
+
+        try {
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse(inputFile);
+
+            Node parentNode = doc.getElementsByTagName(parentTagName).item(0);
+            NodeList childNodes = parentNode.getChildNodes();
+            for(int i = 0;i<childNodes.getLength();i++){
+                Node node = childNodes.item(i);
+                if(node.getNodeType()==Node.ELEMENT_NODE){
+                    Element nodeElem = (Element)node;
+                    if(nodeElem.getAttribute("id").equals(hashCode)){
+                        nodeElem.getElementsByTagName("row").item(0).setTextContent(rowValue);
+                        nodeElem.getElementsByTagName("col").item(0).setTextContent(colValue);
+
+                    } 
+                }
+            }
+            
+
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(inputFile);
+            transformer.transform(source, result);
+
+
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TransformerConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
     /*public void updateStatic(List<Plant> plants){
         Map<String,Plant> gardenStatics = new HashMap<>();
         for(Plant p:plants){

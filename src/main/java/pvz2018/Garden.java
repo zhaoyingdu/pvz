@@ -19,6 +19,8 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     int lotHeight = 5;
     Lot[][] lot = new Lot[lotHeight][lotWidth];
     Plant[][] lots = new Plant[lotHeight][lotWidth];
+
+    
     List<Plant> plants = new ArrayList<>();
     List<Movable> movables = new ArrayList<>();
 
