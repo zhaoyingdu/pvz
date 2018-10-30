@@ -82,23 +82,25 @@ public class View{
 			Pattern plantCommand = Pattern.compile("(plant)\\s+(sunflower|peashooter)\\s+([0-4])\\s+([0-7])");
 			Pattern digCommand = Pattern.compile("(dig)\\s+([0-4])\\s+([0-7])");
 			Pattern collectCommand = Pattern.compile("(collect)");
-			Pattern idleCommand = Pattern.compile("(idle)\\s+([0-9])");
+			Pattern nextCommand = Pattern.compile("(next)\\s+([0-9])");
 			Pattern exitCommand = Pattern.compile("(exit)");
+			Pattern helpCommand = Pattern.compile("(help)");
 
 
 			String command=console.readLine("enter command:\n"+
 							">plant [plant name] [row] [column]\n"+
 							">dig [row] [column]\n>"+
 							">collect\n"+
-							">idle [rounds]\n"+
+							">next [rounds]\n"+
 							">exit\n"+
+							">help\n"+
 							">");
 			Matcher matcher = commandRegex.matcher(command); 
 			if(matcher.find()){
 				Object[] commandInfo =null;
 				//String commandName = matcher.group(1);
 				String commandName = matcher.group(1);
-				console.printf("_"+commandName+"_\n");
+				//console.printf("_"+commandName+"_\n");
 				switch(commandName.trim()){
 					case "plant":	
 						matcher = plantCommand.matcher(command);
@@ -108,7 +110,8 @@ public class View{
 							int col = Integer.parseInt(matcher.group(4));
 							commandInfo = new Object[]{commandName,plantName,row,col};
 						}else{
-							console.printf("plant command not correct");
+							console.printf("plant command not correct\n");
+							continue;
 						}
 						break;
 					case "dig":
@@ -118,7 +121,8 @@ public class View{
 							int col = Integer.parseInt(matcher.group(3));
 							commandInfo = new Object[]{commandName, row,col};
 						}else{
-							console.printf("dig command not correct");
+							console.printf("dig command not correct\n");
+							continue;
 						}
 						break;
 					case "collect":
@@ -126,16 +130,18 @@ public class View{
 						if(matcher.find()){
 							commandInfo = new Object[]{commandName};
 						}else{
-							console.printf("collect command not correct");
+							console.printf("collect command not correct\n");
+							continue;
 						}
 						break;
-					case "idle":
-						matcher = idleCommand.matcher(command);
+					case "next":
+						matcher = nextCommand.matcher(command);
 						if(matcher.find()){
 							int rounds = Integer.parseInt(matcher.group(2));
 							commandInfo = new Object[]{commandName,rounds};
 						}else{
-							console.printf("idle command not correct");
+							console.printf("next command not correct\n");
+							continue;
 						}
 						break;
 					case "exit":
@@ -144,6 +150,14 @@ public class View{
 							System.exit(0);
 						}
 						break;
+					case "help":
+						matcher = helpCommand.matcher(command);
+						if(matcher.find()){
+							printHelp();
+						}else{
+							console.printf("help command not correct\n");
+						}	
+						continue;
 					default:
 						console.printf("unrecognized command.\n");
 						continue;
@@ -153,8 +167,30 @@ public class View{
 			}
 		}
     }
-
-
+	/*print help page to for user to enter command */
+	private void printHelp(){
+		console.printf(
+			"\n\n**************************\n"+
+			"**        manual        **\n"+
+			"**************************\n"+
+			"plant [plant name] [row] [column]\n"+
+			"\tuse this command to plant your defense\n"+
+			"\t[plant name]: currently we only take 'peashooter' and 'sunflower'\n"+
+			"\t[row]: enter the index(0-4) of the row you want to plant your defense\n"+
+			"\t[col]: enter the index(0-7) of the row you want to plant your defense\n"+
+			"dig [row] [column]\n"+
+			"\tuse this command to dig a plant\n"+
+			"\t[row]: same as in 'plant' command\n"+
+			"\t[col]: same as in 'plant' command\n"+
+			"collect\n"+
+			"\tuse this command to collect your suns\n"+
+			"next [rounds]\n"+
+			"\tuse this command to go to next round, or rounds, depend on [rounds]\n"+
+			"\t[rounds]: number of rounds you want to step forward, integer 0-9 permitted\n"+
+			"exit\n"+
+			"\tleave game\n\n"
+		);
+	};
 	public void printGame(){
         console.printf("\n+++++++++++++++++\n");
 		console.printf(sunFlowerView);
@@ -268,12 +304,12 @@ public class View{
 				case "p":
 				case "o":
 				case "z":
-					console.printf(element[0].charAt(0)+" "+element[0]);
+					/*console.printf(element[0].charAt(0)+" "+element[0]);
 					console.printf("\n");
 					console.printf("row: "+"_"+element[1]+"_");
 					console.printf("\n");
 					console.printf("col: "+"_"+element[2]+"_");
-					console.printf("\n");
+					console.printf("\n");*/
 					row =  Integer.parseInt(element[1]);
 					col =  Integer.parseInt(element[2]);
 					gardenView.setCharAt(18+row*18+2+col*2,element[0].charAt(0));

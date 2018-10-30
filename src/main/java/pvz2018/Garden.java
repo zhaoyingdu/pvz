@@ -8,6 +8,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 
 public class Garden extends AbstractGarden implements PropertyChangeListener{// extends AbstractModel{
 
@@ -41,7 +42,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     private Garden(){
         super();
         gardenDOM.createNewXML();
-        System.out.println("Garden: new garden.");
+        //System.out.println("Garden: new garden.");
         money = 100;
         for(int i=0;i<lotHeight;i++){
             for(int j=0;j<lotWidth;j++){
@@ -62,7 +63,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     public void plantDefense(String plantName, int row, int col){
         //System.out.println("Garden-plantDefense");
         if(lots[row][col] != null){
-            System.out.println("slot occupied");
+            System.out.println("\n current slot is occupied\n");
             return;
         }
         Plant newPlant;
@@ -86,7 +87,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
             return;
         }else{
             lots[row][col] = null; //hopefully it get garbage collected..
-            packState();
+           // packState();
             firePropertyChange("render",null,packState());
         }
     }
@@ -159,8 +160,9 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
     }
 
     private void generateZombie(){
-        if(gameProgress%5==0){
-            Zombie zombie = new Zombie(1,lotWidth-1);
+        Random rand = new Random();
+        if(gameProgress%10==0){
+            Zombie zombie = new Zombie(rand.nextInt(lotHeight),lotWidth-1);
             movables.add(zombie);
             lot[zombie.getRow()][zombie.getCol()].addZombie(zombie);
         }
@@ -194,8 +196,8 @@ public class Garden extends AbstractGarden implements PropertyChangeListener{// 
         switch(evt.getPropertyName()){
             case "new sun":
                 int[] plantinfo = (int[])evt.getNewValue();
-                String log = "sunflower at "+ plantinfo[0]+" "+plantinfo[1];
-                System.out.println(log);
+                //String log = "sunflower at "+ plantinfo[0]+" "+plantinfo[1];
+                //System.out.println(log);
                 suns++;
                 break;
             case "fire green pea":

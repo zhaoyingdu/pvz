@@ -101,8 +101,6 @@ public class GardenDOM{
             StreamResult result = new StreamResult(new File(".\\garden.xml"));
             transformer.transform(source,result);
 
-            StreamResult consoleResult = new StreamResult(System.out);
-            transformer.transform(source, consoleResult);
 
 
 
@@ -734,11 +732,11 @@ public class GardenDOM{
 			e.printStackTrace();
         }
         
-        ArrayList<String> str = ret;
+        /*ArrayList<String> str = ret;
         for(String i: str){
             System.out.println("_"+i+"_");
 
-        }
+        }*/
         
         return ret;
     }

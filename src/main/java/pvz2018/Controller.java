@@ -18,7 +18,7 @@ public class Controller implements PropertyChangeListener{
     }
 
     public void command_newGame(){
-        System.out.println("CTL: init new game model");
+        //System.out.println("CTL: init new game model");
         //Garden g = new Garden();
         garden = Garden.getInstance();
         attachModel(garden);
@@ -30,7 +30,7 @@ public class Controller implements PropertyChangeListener{
         if(view!=null){
             view.gardenPropertyChange(e);
         }else{
-            System.out.println("view not initialized");
+            //System.out.println("view not initialized");
         }
     }
 
@@ -46,7 +46,7 @@ public class Controller implements PropertyChangeListener{
             case "collect":
                 garden.collectSuns();
                 break;
-            case "idle":
+            case "next":
                 garden.idle((int)stepInfo[1]);
                 break;
             

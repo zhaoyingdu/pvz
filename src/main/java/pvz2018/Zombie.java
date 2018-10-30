@@ -1,13 +1,13 @@
 package pvz2018;
 
-import java.util.Random;
+
 
 public class Zombie extends Movable implements Comparable<Zombie>{
 
-    Random rand = new Random();
+    
     private int health;
     private double speed;
-    public final double SPEED = -0.25;
+    public final double SPEED = -0.15;
     
 
     public Zombie(int row,int col){
