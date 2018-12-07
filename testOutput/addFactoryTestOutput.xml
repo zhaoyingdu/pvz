@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><garden>
+    <status>
+      <money>25</money>
+      <suns>33</suns>
+      <gameProgress>58</gameProgress>
+      <factories>
+      <sunflower coolDown="5" cost="20"/><peashooter coolDown="4" cost="30"/></factories>
+    </status>
+
+    <plants>
+      <plant id="" name="sunflower" type="harmless"> 
+        <life>50</life>
+        <coordinateX>0</coordinateX>
+        <coordinateY>0</coordinateY>
+      </plant>
+      <plant id="00008" name="peashooter" type="aggresive">
+        <range>30</range> 
+        <life>50</life>
+        <coordinateX>0</coordinateX>
+        <coordinateY>2</coordinateY>
+      </plant>
+    </plants>
+
+    <ammunitions>
+      <ammunition damage="6" id="23121" name="green pea" speed="5" type="ordinary">
+        <coordinateX>0</coordinateX>
+        <coordinateY>2</coordinateY>
+      </ammunition>
+    </ammunitions>
+    
+    <zombies>
+      <zombie damage="10" id="23321" name="plainZombie" speed="3" type="ordinary"> 
+        <life>50</life>
+        <coordinateX>10</coordinateX>
+        <coordinateY>2</coordinateY>
+      </zombie>
+    </zombies>
+  </garden>

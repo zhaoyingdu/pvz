@@ -5,11 +5,12 @@
             {
                 "name": "pvz2018java",
                 "projectName": "pvz2018java",
-                "workingDirectory": "d:\\f18\\3110\\pvz\\pvz2018java",
+                "workingDirectory": "d:\\f18\\pvz\\pvz",
                 "args": [],
                 "vmargs": [],
                 "env": {},
-                "preLaunchTask": ""
+                "preLaunchTask": "",
+                "console": "internalConsole"
             }
         ]
     },
@@ -19,7 +20,7 @@
             {
                 "name": "pvz2018java",
                 "projectName": "pvz2018java",
-                "workingDirectory": "d:\\f18\\3110\\pvz\\pvz2018java",
+                "workingDirectory": "d:\\f18\\pvz\\pvz",
                 "args": [],
                 "vmargs": [],
                 "env": {},

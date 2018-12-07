@@ -1,16 +1,37 @@
 {
-    "configurations": [
-        
-        {
-            "type": "java",
-            "name": "CodeLens (Launch) - App",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "stopOnEntry": false,
-            "mainClass": "pvz2018.App",
-            "args": "",
-            "projectName": "pvz2018java"
-        }
-    ]
+  "configurations": [
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - Saver",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopOnEntry": false,
+      "mainClass": "pvz2018.Saver",
+      "args": "",
+      "projectName": "pvz2018java"
+    },
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - App",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopOnEntry": false,
+      "mainClass": "pvz2018.App",
+      "args": "",
+      "projectName": "pvz2018java"
+    },
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - GardenDOM",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopOnEntry": false,
+      "mainClass": "pvz2018.GardenDOM",
+      "args": "",
+      "projectName": "pvz2018java"
+    }
+  ]
 }

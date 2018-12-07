@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.io.IOException;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -14,332 +15,154 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeEvent;
 //import Controller;//dev
 
-public class View{
+public class View {
 
-	enum plants{sunflower,peashooter};
+	Garden garden = Garden.getInstance();
+	Scanner keyIn = new Scanner(System.in);
 
-
-
-	Console console;
-    Controller gc; //game controller
-	
-	String sunFlowerView = "Sun Flower ||\n";
-	String peaShooterView = "Pea Shooter ||\n";
-    StringBuilder gardenView = new StringBuilder(
-						"  0 1 2 3 4 5 6 7\n"+
-                        "0 _ _ _ _ _ _ _ _\n"+
-						"1 _ _ _ _ _ _ _ _\n"+
-						"2 _ _ _ _ _ _ _ _\n"+
-						"3 _ _ _ _ _ _ _ _\n"+
-						"4 _ _ _ _ _ _ _ _\n");
-	int suns = 0;
-	int money = 0;
-	int gameProgress =0;
-	int sunflowerCD = 0;
-	int peashooterCD =0;
-    String statusView = "suns: "+suns+" money: "+money+"\n";
-	//String welcome = 
-	public View(Controller controller){
-		//plantCD.put("sunflower",Sunflower.coolDown);
-		console = System.console();
-		if(console == null){
-			System.err.println("No console..your OS doesn't support");
-			System.exit(1);
-		}
-
-		gc = controller;
+	public View() {
 		newGame();
-		
-
 	}
 
-	private void newGame(){
-		String init ="";
-		while(true){
-			init = console.readLine("Start new game?(Y/N)\n>");
+	private void newGame() {
+		String init = "";
+		while (true) {
+			System.out.print("Start new game?(Y/N)\n>");
+			init = keyIn.next();
 			init = init.trim().toUpperCase();
-			//console.printf(init);
+			// console.printf(init);
 
-			if(init.equals("Y")) break;
-			if(init.equals("N")) {
-				console.printf("bye bye..");
+			if (init.equals("Y"))
+				break;
+			if (init.equals("N")) {
+				// console.printf("bye bye..");
 				System.exit(0);
 			}
 		}
-
-		gc.command_newGame();
-		gc.attachView(this);
-        printGame();
-        next();
+		next();
 	}
 
+	public void next() {
+		while (true) {
 
-    public void next(){
-        while(true){
+			Pattern commandRegex = Pattern.compile("(\\w+)\\s*");// finding a command
 
-			Pattern commandRegex = Pattern.compile("(\\w+)\\s*");//finding a command
-			
-			Pattern plantCommand = Pattern.compile("(plant)\\s+(sunflower|peashooter)\\s+([0-4])\\s+([0-7])");
+			Pattern plantCommand = Pattern.compile("(plant)\\s+(sunflower|peaShooter|walnut)\\s+([0-4])\\s+([0-7])");
 			Pattern digCommand = Pattern.compile("(dig)\\s+([0-4])\\s+([0-7])");
-			Pattern collectCommand = Pattern.compile("(collect)");
-			Pattern nextCommand = Pattern.compile("(next)\\s+([0-9])");
-			Pattern exitCommand = Pattern.compile("(exit)");
-			Pattern helpCommand = Pattern.compile("(help)");
+			Pattern undoCommand = Pattern.compile("(undo)");
+			Pattern redoCommand = Pattern.compile("(redo)");
+			Pattern nextCommand = Pattern.compile("(next)");
+			Pattern exitCommand = Pattern.compile("(save)");
+			Pattern loadCommand = Pattern.compile("(load)");
+			Pattern dataCommand = Pattern.compile("(getData)");
 
-
-			String command=console.readLine("enter command:\n"+
-							">plant [plant name] [row] [column]\n"+
-							">dig [row] [column]\n>"+
-							">collect\n"+
-							">next [rounds]\n"+
-							">exit\n"+
-							">help\n"+
-							">");
-			Matcher matcher = commandRegex.matcher(command); 
-			if(matcher.find()){
-				Object[] commandInfo =null;
-				//String commandName = matcher.group(1);
+			Pattern helpCommand = Pattern.compile("(print)");
+			System.out.print(">");
+			/*print("enter command:\n" + ">plant [plant name] [row] [column]\n" + ">dig [row] [column]\n>" + ">undo\n"
+					+ ">redo\n" + ">next\n" + ">exit\n" + ">help\n" + ">");*/
+			String command = keyIn.nextLine();
+			Matcher matcher = commandRegex.matcher(command);
+			if (matcher.find()) {
+				Object[] commandInfo = null;
+				// String commandName = matcher.group(1);
 				String commandName = matcher.group(1);
-				//console.printf("_"+commandName+"_\n");
-				switch(commandName.trim()){
-					case "plant":	
-						matcher = plantCommand.matcher(command);
-						if(matcher.find()){
-							String plantName = matcher.group(2);
-							int row = Integer.parseInt(matcher.group(3));
-							int col = Integer.parseInt(matcher.group(4));
-							commandInfo = new Object[]{commandName,plantName,row,col};
-						}else{
-							console.printf("plant command not correct\n");
-							continue;
-						}
-						break;
-					case "dig":
-						matcher = digCommand.matcher(command);
-						if(matcher.find()){
-							int row = Integer.parseInt(matcher.group(2));
-							int col = Integer.parseInt(matcher.group(3));
-							commandInfo = new Object[]{commandName, row,col};
-						}else{
-							console.printf("dig command not correct\n");
-							continue;
-						}
-						break;
-					case "collect":
-						matcher = collectCommand.matcher(command);
-						if(matcher.find()){
-							commandInfo = new Object[]{commandName};
-						}else{
-							console.printf("collect command not correct\n");
-							continue;
-						}
-						break;
-					case "next":
-						matcher = nextCommand.matcher(command);
-						if(matcher.find()){
-							int rounds = Integer.parseInt(matcher.group(2));
-							commandInfo = new Object[]{commandName,rounds};
-						}else{
-							console.printf("next command not correct\n");
-							continue;
-						}
-						break;
-					case "exit":
-						matcher = exitCommand.matcher(command);
-						if(matcher.find()){
-							System.exit(0);
-						}
-						break;
-					case "help":
-						matcher = helpCommand.matcher(command);
-						if(matcher.find()){
-							printHelp();
-						}else{
-							console.printf("help command not correct\n");
-						}	
+				// console.printf("_"+commandName+"_\n");
+				switch (commandName.trim()) {
+				case "plant":
+					matcher = plantCommand.matcher(command);
+					if (matcher.find()) {
+						String plantName = matcher.group(2);
+						int row = Integer.parseInt(matcher.group(3));
+						int col = Integer.parseInt(matcher.group(4));
+						garden.plantDefense(plantName, row, col);
+					} else {
+						print("plant command not correct\n");
 						continue;
-					default:
-						console.printf("unrecognized command.\n");
+					}
+					break;
+				case "dig":
+					matcher = digCommand.matcher(command);
+					if (matcher.find()) {
+						int row = Integer.parseInt(matcher.group(2));
+						int col = Integer.parseInt(matcher.group(3));
+						garden.removePlant(row, col);
+					} else {
+						print("dig command not correct\n");
 						continue;
-						
-				}
-				gc.nextStep(commandInfo);
-			}
-		}
-    }
-	/*print help page to for user to enter command */
-	private void printHelp(){
-		console.printf(
-			"\n\n**************************\n"+
-			"**        manual        **\n"+
-			"**************************\n"+
-			"plant [plant name] [row] [column]\n"+
-			"\tuse this command to plant your defense\n"+
-			"\t[plant name]: currently we only take 'peashooter' and 'sunflower'\n"+
-			"\t[row]: enter the index(0-4) of the row you want to plant your defense\n"+
-			"\t[col]: enter the index(0-7) of the row you want to plant your defense\n"+
-			"dig [row] [column]\n"+
-			"\tuse this command to dig a plant\n"+
-			"\t[row]: same as in 'plant' command\n"+
-			"\t[col]: same as in 'plant' command\n"+
-			"collect\n"+
-			"\tuse this command to collect your suns\n"+
-			"next [rounds]\n"+
-			"\tuse this command to go to next round, or rounds, depend on [rounds]\n"+
-			"\t[rounds]: number of rounds you want to step forward, integer 0-9 permitted\n"+
-			"exit\n"+
-			"\tleave game\n\n"
-		);
-	};
-	public void printGame(){
-        console.printf("\n+++++++++++++++++\n");
-		console.printf(sunFlowerView);
-        console.printf(peaShooterView);
-        console.printf(statusView);
-		console.printf(gardenView.toString());
-		console.printf("+++++++++++++++++\n\n");
-	}
-
-	//update view
-	public void gardenPropertyChange(PropertyChangeEvent e){
-		//console.printf(e.getPropertyName());
-		switch(e.getPropertyName()){
-
-			case "planted":
-				render((ArrayList<String>)e.getNewValue());
-				break;
-			case "plant failed":
-				console.printf((String)e.getNewValue());
-				break;
-			case "render":
-				render((ArrayList<String>)e.getNewValue());
-				//unpackState((Map<String,Object>)e.getNewValue());
-				//printGame();
-				break;
-			default:
-				console.printf("unknown model change...omg...");
-		}
-	}
-	//utility to update the view;
-
-	/*private void unpackState(Map<String,Object> state){
-		gardenView = new StringBuilder(
-						"  0 1 2 3 4 5 6 7\n"+
-                        "0 _ _ _ _ _ _ _ _\n"+
-						"1 _ _ _ _ _ _ _ _\n"+
-						"2 _ _ _ _ _ _ _ _\n"+
-						"3 _ _ _ _ _ _ _ _\n"+
-						"4 _ _ _ _ _ _ _ _\n");
-		suns=(int)state.get("suns");
-		money=(int)state.get("money");
-		statusView = "suns: "+suns+" money: "+money+"\n";
-		updateCD(state);
-		parseLayout((Plant[][])state.get("layout"));
-		renderMovables((ArrayList<Movable>)state.get("movables"));
-
-		//printGame();
-	}*/
-
-	private void renderMovables(List<Movable> movables){
-		int row;
-		int position;
-		for (Movable m : movables){
-			row = m.getRow();
-			position = (int)Math.floor(m.getPosition());
-			switch(m.getName()){
-				case "greenpea":
-					gardenView.setCharAt(18+row*18+2+position,'o');
-					break;
-			}
-		}
-	}
-	/*private void updateCD(Map<String,Object> state){
-		sunFlowerView = "Sun Flower |";//".....|\n";
-		for(int i=0;i<(int)state.get("sunflowerCD");i++){
-			sunFlowerView+='.';
-		}
-		sunFlowerView += "|\n";	
-
-		peaShooterView = "Pea Shooter |";//".....|\n";
-		for(int i=0;i<(int)state.get("peashooterCD");i++){
-			peaShooterView+='.';
-		}
-		peaShooterView += "|\n";	
-
-	}*/
-
-	public void render(ArrayList<String> content){
-
-		
-		
-		int row,col;
-		String[] element;// = content.split(" ");
-		for(String s:content){
-			element = s.split(" ");
-			switch(element[0]){
-				case "money":
-					money = Integer.parseInt(element[1]);
-					break;
-				case "suns":
-					suns = Integer.parseInt(element[1]);
-					break;
-				case "gameProgress":
-					gameProgress = Integer.parseInt(element[1]);
-					break;
-				case "sunflower":
-					sunFlowerView = "Sun Flower |";//".....|\n";
-					for(int i=0;i<Integer.parseInt(element[1]);i++){
-						sunFlowerView+='.';
 					}
-					sunFlowerView += "|\n";	
 					break;
-				case "peashooter":
-					peaShooterView = "Pea Shooter |";//".....|\n";
-					for(int i=0;i<Integer.parseInt(element[1]);i++){
-						peaShooterView+='.';
+				case "undo":
+					matcher = undoCommand.matcher(command);
+					if (matcher.find()) {
+						garden.undo();
+					} else {
+						print("undo command not correct\n");
+						continue;
 					}
-					peaShooterView += "|\n";	
 					break;
-				case "s":
-				case "p":
-				case "o":
-				case "z":
-					/*console.printf(element[0].charAt(0)+" "+element[0]);
-					console.printf("\n");
-					console.printf("row: "+"_"+element[1]+"_");
-					console.printf("\n");
-					console.printf("col: "+"_"+element[2]+"_");
-					console.printf("\n");*/
-					row =  Integer.parseInt(element[1]);
-					col =  Integer.parseInt(element[2]);
-					gardenView.setCharAt(18+row*18+2+col*2,element[0].charAt(0));
+				case "redo":
+					matcher = redoCommand.matcher(command);
+					if (matcher.find()) {
+						garden.redo();
+					} else {
+						print("redo command not correct\n");
+						continue;
+					}
 					break;
-			}
-			statusView = "suns: "+suns+". money: "+money+". rounds:"+gameProgress+"\n";
-		}
 
-		
-		printGame();
-	}
-
-	public void parseLayout(Plant[][] layout){
-
-		int rows=layout.length;
-		int cols = layout[0].length;
-		
-		for(int row = 0;row<rows;row++){
-			for(int col = 0; col<cols;col++){
-				if(layout[row][col]!=null){
-					gardenView.setCharAt(18+row*18+2+col*2,layout[row][col].getName().charAt(0));
-				}else{
-					gardenView.setCharAt(18+row*18+2+col*2,'_');
+				case "next":
+					matcher = nextCommand.matcher(command);
+					if (matcher.find()) {
+						garden.updateGame();
+					} else {
+						print("next command not correct\n");
+						continue;
+					}
+					break;
+				case "save":
+					matcher = exitCommand.matcher(command);
+					if (matcher.find()) {
+						System.out.print("enter file name to save");
+						String filename = keyIn.next();
+						garden.save(filename);//System.exit(0);
+					}
+					break;
+				case "load":
+					matcher = loadCommand.matcher(command);
+					if (matcher.find()) {
+						System.out.print("enter file name to load");
+						String filename = keyIn.next();
+						garden.load(filename);//System.exit(0);
+					}
+					break;
+				case "print":
+					matcher = helpCommand.matcher(command);
+					if (matcher.find()) {
+						garden.printStatus();
+					} else {
+						print("print command not correct\n");
+					}
+					break;
+				case "getData":
+					matcher = dataCommand.matcher(command);
+					if (matcher.find()) {
+						print(garden.format());
+					} else {
+						print("getData command not correct\n");
+					}
+					break;
+				default:
+					print("unrecognized command.\n");
+					continue;
 				}
 			}
 		}
 	}
+
+	private void print(String s){
+			System.out.println(s);
+		}
+
 	
+
 }
-
-
-	
-	

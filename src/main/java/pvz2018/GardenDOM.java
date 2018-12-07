@@ -1,764 +1,405 @@
 package pvz2018;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.net.URLClassLoader;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Stack;
 
 
 public class GardenDOM{
 
-    private static GardenDOM gardenDOM;
-    private GardenDOM(){};
+    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder dbBuilder;
+    Document doc;
 
-    private ArrayList<String> localStatics = new ArrayList<>();
-    private ArrayList<String> localMovables = new ArrayList<>();
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    Transformer transformer;
     
+    private static GardenDOM gardenDOM;
+    private GardenDOM(){
+        try {
+            this.dbBuilder = dbFactory.newDocumentBuilder();
+            this.transformer = transformerFactory.newTransformer();
+            readXML("template.xml");            
+        } catch (ParserConfigurationException | TransformerConfigurationException e) {
+            e.printStackTrace();
+        }
+    };
+
     public static GardenDOM getInstance(){
         if(gardenDOM == null){
-            return new GardenDOM();
+            gardenDOM =  new GardenDOM();
+            return gardenDOM;
         }
         return gardenDOM;
     }
 
-    
    
-    //public static void main(String[] args){
-    public void createNewXML() {
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dbBuilder;
-        Document doc;
-       
+
+    /*
+        populate plant factory status portion
+        accepted args: "sunflower,5,20","peashooter,4,30"..
+        for each string elem, first part indicate factry name,
+        second part indicate factory cooldown,
+        third part indicate factory charges for each product
+    */
+    public void addFactory(String... factories){
+        String facName, coolDown, cost;
+        XPath xPath =  XPathFactory.newInstance().newXPath();
+        String expression = "//factories";
+        Node nodeFactories = null;
         try {
-            dbBuilder = dbFactory.newDocumentBuilder();
-            doc = dbBuilder.newDocument();
-            
-            //add root
-            Element rootElement = doc.createElement("garden");
-            doc.appendChild(rootElement);
-
-                //add root-status
-                Element gameStatus = doc.createElement("status");
-                rootElement.appendChild(gameStatus);
-
-                    //add root-status-money
-                    Element money = doc.createElement("money");
-                    money.appendChild(doc.createTextNode("0"));
-                    gameStatus.appendChild(money);
-                    //add root-status-suns
-                    Element suns = doc.createElement("suns");
-                    suns.appendChild(doc.createTextNode("0"));
-                    gameStatus.appendChild(suns);
-                    //add root-status-game progress
-                    Element gameProgress = doc.createElement("gameProgress");
-                    gameProgress.appendChild(doc.createTextNode("0"));
-                    gameStatus.appendChild(gameProgress);
-                    //add root-status-CD
-                    Element cd = doc.createElement("coolDown");
-                    gameStatus.appendChild(cd);
-                        //add root-status-cd-sunflower
-                        Element sunflower = doc.createElement("sunflower");
-                        sunflower.appendChild(doc.createTextNode("5"));
-                        cd.appendChild(sunflower);
-                        //add root-status-cd-peashooter
-                        Element peashooter = doc.createElement("peashooter");
-                        peashooter.appendChild(doc.createTextNode("5"));
-                        cd.appendChild(peashooter);
-
-            //add root-static
-            Element staticElement = doc.createElement("static");
-            rootElement.appendChild(staticElement);
-
-            //add root-static
-            Element movableElement = doc.createElement("movable");
-            rootElement.appendChild(movableElement);
-
-
-            // write the content into xml file
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File(".\\garden.xml"));
-            transformer.transform(source,result);
-
-
-
-
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-		}
-    }
-
-    private void addElement(Map<String, String> objInfo){
-        String parentTagName = objInfo.get("parentTagName");
-        String tagName = objInfo.get("tagName");
-        String hashCode = objInfo.get("id");
-        String rowValue = objInfo.get("row");
-        String colValue = objInfo.get("col");
-        //String parentTagName = objInfo.get("parentTagName");
-
-        File inputFile = new File("garden.xml");
-
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dbBuilder;
-        try {
-            dbBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dbBuilder.parse(inputFile);
-            Node parentNode = doc.getElementsByTagName(parentTagName).item(0);
-            Element newChild = doc.createElement(tagName);
-            Attr id = doc.createAttribute("id");
-            id.setValue(hashCode);
-            newChild.setAttributeNode(id);
-            newChild.setIdAttributeNode(id, true);
-                Element row = doc.createElement("row");
-                row.appendChild(doc.createTextNode(rowValue));
-                newChild.appendChild(row);
-                Element col = doc.createElement("col");
-                col.appendChild(doc.createTextNode(colValue));
-                newChild.appendChild(col);
-            if(parentNode.getNodeType()==Node.ELEMENT_NODE){
-                Element staticElement = (Element)parentNode;
-                staticElement.appendChild(newChild);
+            nodeFactories = (Node) xPath.compile(expression).evaluate(this.doc, XPathConstants.NODE);
+            if(nodeFactories == null){
+                throw new NoSuchElementException("'factories node not found'");
             }
-            switch(parentTagName){
-                case "static":
-                    localStatics.add(hashCode);
-                    break;
-                case "movable":
-                    localMovables.add(hashCode);
-                    break;
-
-            }
-
-           
-            
-
-           
-
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File("./garden.xml"));
-            transformer.transform(source, result);
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
+        } catch (XPathExpressionException e) {
             e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        
-    }
-
-
-    /*private void addStatic(Plant plant){
-        File inputFile = new File("garden.xml");
-
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dbBuilder;
-        try {
-            dbBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dbBuilder.parse(inputFile);
-            Node nodeStatic = doc.getElementsByTagName("static").item(0);
-            
-
-            Element newPlant = doc.createElement(plant.getName());
-            Attr id = doc.createAttribute("id");
-            id.setValue(Integer.toString(plant.hashCode()));
-            newPlant.setAttributeNode(id);
-            newPlant.setIdAttributeNode(id, true);
-                Element row = doc.createElement("row");
-                row.appendChild(doc.createTextNode(Integer.toString(plant.getRow())));
-                newPlant.appendChild(row);
-                Element col = doc.createElement("col");
-                col.appendChild(doc.createTextNode(Integer.toString(plant.getCol())));
-                newPlant.appendChild(col);
-            if(nodeStatic.getNodeType()==Node.ELEMENT_NODE){
-                Element staticElement = (Element)nodeStatic;
-                staticElement.appendChild(newPlant);
-            }
-
-            //update localStatics
-            localStatics.add(Integer.toString(plant.hashCode()));
-
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File("./garden.xml"));
-            transformer.transform(source, result);
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        
-    }*/
-
-
-    public void updateDOM(List<Movable> movables, List<Plant> plants){
-        Map<String,Plant> gardenStatics = new HashMap<>();
-        Map<String,Movable> gardenMovables = new HashMap<>();
-        Map<String,String> newProperties = new HashMap<>();//list of element to be updated
-
-        for(Plant p:plants){
-            gardenStatics.put(Integer.toString(p.hashCode()),p);    
-        }
-
-        //remove digged
-        /*for(String id:localStatics){
-            if(!gardenStatics.containsKey(id)){
-                deleteElement("static",id);
-            }
-        }*/
-        
-        //iter through localStatic, check every element if they exist in 
-        //gardenStatics, if no, delete the element in dom as well as the
-        //string in localStatic
-        Iterator<String> localStaticsItr = localStatics.iterator();
-        while(localStaticsItr.hasNext()){
-            String id = localStaticsItr.next();
-            if(!gardenStatics.containsKey(id)){
-                deleteElement("Static",id);
-                localStaticsItr.remove();
-            }
-        }
-
-        for(String id:gardenStatics.keySet()){
-            if(!localStatics.contains(id)){
-                Map<String,String> newElement = new HashMap<>();
-                newElement.put("parentTagName","static");
-                newElement.put("tagName",gardenStatics.get(id).getName());
-                newElement.put("id",id);
-                newElement.put("row",Integer.toString(gardenStatics.get(id).getRow()));
-                newElement.put("col",Integer.toString(gardenStatics.get(id).getCol()));
-                addElement(newElement);
-            }else{//update exsiting element with new row col properties
-                //Map<String,String> newProperties = new HashMap<>();
-                newProperties.put("parentTagName","static");
-                newProperties.put("tagName",gardenStatics.get(id).getName());
-                newProperties.put("id",id);
-                newProperties.put("row",Integer.toString(gardenStatics.get(id).getRow()));
-                newProperties.put("col",Integer.toString(gardenStatics.get(id).getCol()));
-                updateElement(newProperties);
-
-            }
-        }
-
-        //Map<String,Movable> gardenMovables = new HashMap<>();
-        for(Movable p:movables){
-            gardenMovables.put(Integer.toString(p.hashCode()),p);    
-        }
-
-
-        Iterator<String> localMovablesItr = localMovables.iterator();
-        while(localMovablesItr.hasNext()){
-            String id = localMovablesItr.next();
-            if(!gardenMovables.containsKey(id)){
-                deleteElement("movable",id);
-                localMovablesItr.remove();
-            }
-        }
-
-        /*concurrent modification error .use while and itr
-        for(String id:localMovables){
-            if(!gardenMovables.containsKey(id)){
-                deleteElement("movable",id);
-            }pu
-        }*/
-
-
-       
-
-
-        for(String id:gardenMovables.keySet()){
-            if(!localMovables.contains(id)){
-                Map<String,String> newElement = new HashMap<>();
-                newElement.put("parentTagName","movable");
-                newElement.put("tagName",gardenMovables.get(id).getName());
-                newElement.put("id",id);
-                newElement.put("row",Integer.toString(gardenMovables.get(id).getRow()));
-                newElement.put("col",Integer.toString(gardenMovables.get(id).getCol()));
-                addElement(newElement);
-            }else{
-                newProperties.replace("parentTagName","movable");
-                newProperties.replace("tagName",gardenMovables.get(id).getName());
-                newProperties.replace("id",id);
-                newProperties.replace("row",Integer.toString(gardenMovables.get(id).getRow()));
-                newProperties.replace("col",Integer.toString(gardenMovables.get(id).getCol()));
-                updateElement(newProperties);
-
-            }
+        }      
+        for (String s : factories){
+            facName = s.split(",")[0];
+            coolDown = s.split(",")[1];
+            cost = s.split(",")[2];
+            Element factory = this.doc.createElement(facName);
+            factory.setAttribute("coolDown", coolDown);
+            factory.setAttribute("cost", cost);
+            nodeFactories.appendChild(factory);               
         }
 
     }
 
-    private void updateElement(Map<String,String> objInfo){
-        File inputFile = new File("./garden.xml");
-
-        String parentTagName = objInfo.get("parentTagName");
-        String tagName = objInfo.get("tagName");
-        String hashCode = objInfo.get("id");
-        String rowValue = objInfo.get("row");
-        String colValue = objInfo.get("col");
-
+    public void readXML(String fileName) {  
         try {
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document doc = docBuilder.parse(inputFile);
-
-            Node parentNode = doc.getElementsByTagName(parentTagName).item(0);
-            NodeList childNodes = parentNode.getChildNodes();
-            for(int i = 0;i<childNodes.getLength();i++){
-                Node node = childNodes.item(i);
-                if(node.getNodeType()==Node.ELEMENT_NODE){
-                    Element nodeElem = (Element)node;
-                    if(nodeElem.getAttribute("id").equals(hashCode)){
-                        nodeElem.getElementsByTagName("row").item(0).setTextContent(rowValue);
-                        nodeElem.getElementsByTagName("col").item(0).setTextContent(colValue);
-
-                    } 
-                }
-            }
-            
-
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(inputFile);
-            transformer.transform(source, result);
-
-
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerException e) {
+            this.doc = dbBuilder.parse(new File(fileName));
+           // DOMSource source = new DOMSource(tampDoc);
+           // StreamResult result = new StreamResult(new File("garden.xml"));
+            //transformer.transform(source,result);
+            //this.doc = dbBuilder.parse(new File("garden.xml"));
+        } catch ( SAXException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
-    /*public void updateStatic(List<Plant> plants){
-        Map<String,Plant> gardenStatics = new HashMap<>();
-        for(Plant p:plants){
-            gardenStatics.put(Integer.toString(p.hashCode()),p);    
-            //ids.add(Integer.toString(p.hashCode()));
-        }
-
-        //remove digged
-        for(String id:localStatics){
-            if(!gardenStatics.containsKey(id)){
-                deleteStatic(id);
-            }
-        }
-        for(String id:gardenStatics.keySet()){
-            if(!localStatics.contains(id)){
-                addStatic(gardenStatics.get(id));
-            }
-        }
-
-    }*/
-
-
 
     
-    /*public void testID(Plant p){
-        File inputFile = new File("./garden.xml");
+    
+    public boolean scanZombie(int baseX){
+        //fnd all zombie node whose coord x is same as base
+        XPath xPath =  XPathFactory.newInstance().newXPath();
+        String expression = "//zombie[@coordinateX ="+baseX+"]";
+        NodeList zombies = (NodeList)find(null,expression,NodeList.class);
+        if(zombies.getLength() == 0) return false;
+        //System.out.println("following zombies detected");
+        //System.out.println(nodeToString(zombies));
+        
+        return true;
 
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dbBuilder;
-        //try {
-            try {
-            dbBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dbBuilder.parse(inputFile);
-            if(doc.getElementById(Integer.toString(p.hashCode())) == null){
-                System.out.println("get by id failed");
-            }
-
-
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+    }
+    // <ammunition id = "23121" name="green pea" type="ordinary" speed="5" damage="6" coordinateX = "0" coordinateY="2">
+    public void addMovables(String tagName, String amoInfo){
+        //String plantXML = "<plant id=\""+plantInfo[0]+"\" name=\""+plantInfo[1]+"\" type=\""+plantInfo[2]+"\" life = \""+plantInfo[3]+"\" health = \""+plantInfo[4]+"\" range = \""+plantInfo[5]+"\" coordinateX = \""+plantInfo[6]+"\" coordinateY=\""+plantInfo[7]+"\"></plant>";
+        try {
+            Node parent = doc.getElementsByTagName(tagName).item(0);
+            Document plantDoc = dbBuilder.parse(new ByteArrayInputStream(amoInfo.getBytes("UTF-8")));
+            Node plant = doc.importNode(plantDoc.getDocumentElement(),true);
+            parent.appendChild(plant);
+        } catch (SAXException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public Node removePlantById(String id){
+        NodeList plantAtLot = (NodeList)find(null,"//plant[@id="+id+"]",NodeList.class);
+        if(plantAtLot.getLength()==0){
+            System.out.println("no plant at spot, remove has no effect");
+            return null;
+        }
+        if(plantAtLot.getLength()>1){
+           throw new Error("operation error, found two plants at one spot, debug your app!");
+        }
+        Node plants = doc.getElementsByTagName("plants").item(0);
+        plants.removeChild(plantAtLot.item(0));
+        return plantAtLot.item(0);
+    }
+    /*
+        <hashcode> <type> <name> <life> <health> <range> <coordinateX> <coordinateY>
+    */
+    public Node addPlant(String plantInfo, int x, int y){
+        Node plantAtLot = (Node)getObjectAt("plant", x, y);//find(null,"//plant[@coordinateX="+x+"][@coordinateY= "+y+"]",NodeList.class);
+        if(plantAtLot!=null){
+            return null;
+            //throw new Error("already a plant occupied the space");
+        }
+        try {
+            Node plants = doc.getElementsByTagName("plants").item(0);
+            Document plantDoc = dbBuilder.parse(new ByteArrayInputStream(plantInfo.getBytes("UTF-8")));
+            //Element plant =  plantDoc.getDocumentElement();
+            Node plant = doc.importNode(plantDoc.getDocumentElement(),true);
+            plants.appendChild(plant);
+            return plant;
+        } catch (SAXException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Integer getObjectX(Node obj){
+        return (Integer)gardenDOM.find(obj,"number(.//@coordinateX)",Integer.class);
+    }
+
+    public Integer getObjectId(Node obj){
+        return (Integer)gardenDOM.find(obj,"number(.//@id)",Integer.class);
+    }
+
+    public String getObjectName(Node obj){
+        
+        return (String)gardenDOM.find(obj,".//@name",String.class);
+
+    }
+    public int getObjectY(Node obj){
+        return (Integer)gardenDOM.find(obj,"number(.//@coordinateY)",Integer.class);
+
+    }
+    public int getObjectSpeed(Node obj){
+        return (Integer)gardenDOM.find(obj,"number(.//@ speed)",Integer.class);
+    }
+    
+    public int getObjectDamage(Node obj){
+        return (Integer)gardenDOM.find(obj,"number(.//@damage)",Integer.class);
+    }
+
+    public int getObjectLife(Node obj){
+        return (Integer)gardenDOM.find(obj,"number(.//@life)",Integer.class);
+    }
+
+    public int getObjectHealth(Node obj){
+        return (Integer)gardenDOM.find(obj,"number(.//@health)",Integer.class);
+    }
+
+    public Node getObjectAt(String tagName, int x,int y){
+        Node ret =  (Node)gardenDOM.find(null,String.format("//%s[@coordinateX = \"%d\"][@coordinateY = \"%d\"]",tagName,x,y),Node.class);
+        return ret;
+    }
+
+    /*<coordinateX> <coordinateY>*/
+    public Node removePlant(String... coordInfo){
+        NodeList plantAtLot = (NodeList)find(null,"//plant[@coordinateX="+coordInfo[0]+"][@coordinateY= "+coordInfo[1]+"]",NodeList.class);
+        if(plantAtLot.getLength()==0){
+            System.out.println("no plant at spot, remove has no effect");
+            return null;
+        }
+        if(plantAtLot.getLength()>1){
+           throw new Error("operation error, found two plants at one spot, debug your app!");
+        }
+        Node plants = doc.getElementsByTagName("plants").item(0);
+        plants.removeChild(plantAtLot.item(0));
+        return plantAtLot.item(0);
+    }
+
+    
+    public void dumpToXML(String fileName){
+        try {
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File(fileName));
+            transformer.transform(source, result);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+    }
 
 
-    }*/
+    public static String nodeToString(Node nodes) {
+        StringWriter sw = new StringWriter();
+        StringBuffer retStr = new StringBuffer();
+        try {
+          Transformer t = TransformerFactory.newInstance().newTransformer();
+          t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+ //for(int i = 0;i<nodes.getLength();i++){
+            t.transform(new DOMSource(nodes), new StreamResult(sw));
+            retStr.append(sw.toString());
+   //       }    
+        } catch (TransformerException te) {
+          System.out.println("nodeToString Transformer Exception");
+        }
+        return retStr.toString();
+      }
 
     
 
-    public void updateStatus(int money,int gameProgress, int suns){
-        File inputFile = new File("./garden.xml");
-
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dbBuilder;
-        try {
-            dbBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dbBuilder.parse(inputFile);
-            Node nodeMoney = doc.getElementsByTagName("money").item(0);
-            nodeMoney.setTextContent(Integer.toString(money));
-            Node nodeSuns = doc.getElementsByTagName("suns").item(0);
-            nodeSuns.setTextContent(Integer.toString(suns));
-            Node nodeGameProgress = doc.getElementsByTagName("gameProgress").item(0);
-            nodeGameProgress.setTextContent(Integer.toString(gameProgress));
-           
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File("./garden.xml"));
-            transformer.transform(source, result);
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public Object find( Node context, String expr, Class retType){
+        Object retVal = null;
+        if(context == null){
+            //System.out.println("running findByTYoe against doc element");
+            context = doc;
         }
         
+        XPath xPath =  XPathFactory.newInstance().newXPath();
+        try {
+            XPathExpression XExpr = xPath.compile(expr);
+            switch(retType.getSimpleName()){
+                case "Node":
+                    retVal = XExpr.evaluate(context, XPathConstants.NODE);   
+                    break;
+                case "NodeList":
+                    retVal = XExpr.evaluate(context, XPathConstants.NODESET);   
+                    break;
+                case "String":
+                    retVal = (String)XExpr.evaluate(context, XPathConstants.STRING);  
+                    break;
+                case "Integer":
+                    retVal = ((Double)XExpr.evaluate(context, XPathConstants.NUMBER)).intValue();  
+                    break;
+                case "Boolean":
+                    retVal = ((Boolean)XExpr.evaluate(context, XPathConstants.BOOLEAN));  
+                    break;
+
+            }
+            
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
+        return retVal;
         
     }
 
-    /*private void deleteStatic(String id){
-        //String id = Integer.toString(plant.hashCode());
-        
-        File inputFile = new File("./garden.xml");
-
-        try {
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document doc = docBuilder.parse(inputFile);
-
-            Node staticNode = doc.getElementsByTagName("static").item(0);
-            NodeList childNodes = staticNode.getChildNodes();
-            for(int i = 0;i<childNodes.getLength();i++){
-                Node node = childNodes.item(i);
-                if(node.getNodeType()==Node.ELEMENT_NODE){
-                    Element nodeElem = (Element)node;
-                    if(nodeElem.getAttribute("id").equals(id)) staticNode.removeChild(node);
-                }
-            }
-
-            Iterator<String> localStaticsItr = localStatics.iterator();
-            while(localStaticsItr.hasNext()){
-                String s = localStaticsItr.next();
-                if(s==id){
-                    localStaticsItr.remove();
-                }
-            }
-
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(inputFile);
-            transformer.transform(source, result);
-
-
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public boolean move(Node node){
+        Element elem = (Element)node;
+        Integer coordY =(Integer)getObjectY(node);
+        Integer coordX =(Integer)getObjectX(node);
+        int speed = (Integer)getObjectSpeed(node);
+        Integer side = (Integer)find(node, "number(.//@side)", Integer.class);
+        String findTarget = String.format(".//*[@side = %d][@coordinateX = %d][@coordinateY = %d]",
+        0,coordX,coordY);
+        if(side == 0){
+            findTarget = String.format(".//*[@side = %d][@coordinateX = %d][@coordinateY <= %d]",
+            1,coordX,coordY);
         }
-
-    }*/
-
-    private void deleteElement(String parentTagName, String id){
-        //String id = Integer.toString(plant.hashCode());
-        
-        File inputFile = new File("./garden.xml");
-
-        try {
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document doc = docBuilder.parse(inputFile);
-
-            Node parentNode = doc.getElementsByTagName(parentTagName).item(0);
-            NodeList childNodes = parentNode.getChildNodes();
-            for(int i = 0;i<childNodes.getLength();i++){
-                Node node = childNodes.item(i);
-                if(node.getNodeType()==Node.ELEMENT_NODE){
-                    Element nodeElem = (Element)node;
-                    if(nodeElem.getAttribute("id").equals(id)) parentNode.removeChild(node);
-                }
+        Node enemy = (Node)find(null,findTarget, Node.class);
+        if(enemy!=null){
+            Integer atkDamage = getObjectDamage(node);
+            Integer takeDamage = getObjectDamage(enemy);
+            if(decreaseHealth(enemy, atkDamage)){
+                 elem.setAttribute("coordinateY", coordY+speed+"");
             }
-
-
-            /*switch(parentTagName){
-                case "static":
-                    Iterator<String> localStaticsItr = localStatics.iterator();
-                    while(localStaticsItr.hasNext()){
-                        String s = localStaticsItr.next();
-                        if(s==id){
-                            localStaticsItr.remove();
-                        }
-                    }
-                    break;
-                case "movable":
-                    Iterator<String> localMovableItr = localMovables.iterator();
-                    while(localMovableItr.hasNext()){
-                        String s = localMovableItr.next();
-                        if(s==id){
-                            localMovableItr.remove();
-                        }
-                    }
-                    break;
-            }*/
+            return decreaseHealth(node, takeDamage);
             
+        }
+        elem.setAttribute("coordinateY", coordY+speed+"");
+        return false;
+    }
 
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(inputFile);
-            transformer.transform(source, result);
-
-
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public boolean decreaseHealth(Node node,int damage){
+        Element elem = (Element) node;
+        int health = getObjectHealth(node);
+        if(health<damage){
+            node.getParentNode().removeChild(node);
+            System.out.println(node.getNodeName()+" "+getObjectId(node)+" died");
+            return true;
+        }else{
+            elem.setAttribute("health",health-damage+"");
+            return false;
         }
 
+    }
+    private void log(Object exp){
+        if( exp.getClass().equals(Node.class)){
+            System.out.println(nodeToString(Node.class.cast(exp)));
+        }
+        System.out.println(exp);
+        
+    }
+    private static void print(Object exp){
+        if( exp.getClass().equals(NodeList.class)){
+            System.out.println(nodeToString(Node.class.cast(exp)));
+        }
+        System.out.println(exp);
+        
+    }
+
+    public boolean saveAs(String filename){
+        File file = new File(Utility.getResourceFilePath("save/"+filename));
+        if(file.exists()){
+            log("file already exists, try another name");
+            return false;
+        }
+        dumpToXML(file.getPath());
+        return true;
+    } 
+
+    public boolean load(String filename){
+        File file = new File(Utility.getResourceFilePath("save/"+filename));
+        if(!file.exists()){
+            log("file doesn't exists, try another name");
+            return false;
+        }
+        try {
+            doc = dbBuilder.parse(file.toURI().toString());
+        } catch (SAXException | IOException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     
 
-    
-    private ArrayList<String> parseStatus(Node node){
-        ArrayList<String> ret = new ArrayList<>();
+    public static void main(String ... args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException, URISyntaxException {
         
-        NodeList nodeList = node.getChildNodes();
-        for(int i = 0;i<nodeList.getLength();i++){
-            if(nodeList.item(i).getNodeName().equals("coolDown")){
-                NodeList coolDownList = nodeList.item(i).getChildNodes();
-                for(int j = 0;j<coolDownList.getLength();j++){
-                    ret.add(coolDownList.item(j).getNodeName()+" "+
-                            coolDownList.item(j).getTextContent());
-                }
-            }else{
-                ret.add(nodeList.item(i).getNodeName()+" "+
-                    nodeList.item(i).getTextContent());
-            }
-        }
+        GardenDOM dom = GardenDOM.getInstance();
         
-        return ret;
+        Node zombie  = (Node)dom.find(null, "//zombie[1]",Node.class);
+        print(nodeToString(zombie));
+        dom.move(zombie);
+        print(nodeToString(zombie));
+        
     }
-
-    /*private ArrayList<String> parseStatic(Node node){
-        ArrayList<String> ret = new ArrayList<>();
-        
-        NodeList staticList = node.getChildNodes();
-
-
-        //NodeList staticList = childs.item(i).getChildNodes();
-        char type;
-        char row='-';
-        char col='-';
-        for(int i = 0;i<staticList.getLength();i++){
-            type = staticList.item(i).getNodeName().charAt(0);
-            //+staticList.item(i));
-            NodeList rowAndCol = staticList.item(i).getChildNodes();
-            for(int j=0;j<rowAndCol.getLength();j++){
-                if(rowAndCol.item(j).getNodeName()=="row"){
-                    row = rowAndCol.item(j).getTextContent().charAt(0);
-                }
-                if(rowAndCol.item(j).getNodeName()=="col"){
-                    col = rowAndCol.item(j).getTextContent().charAt(0);
-                }
-            }
-
-            ret.add(type+" "+row+" "+col);
-        }
-        return ret;
-    }*/
-
-
-    private ArrayList<String> parseStaticMovable(Node node){
-        ArrayList<String> ret = new ArrayList<>();
-        
-        NodeList childList = node.getChildNodes();
-
-
-        //NodeList staticList = childs.item(i).getChildNodes();
-        char type;
-        char row='-';
-        char col='-';
-        Node n;
-        for(int i = 0;i<childList.getLength();i++){
-            n= childList.item(i);
-            if(n.getNodeName()=="greenpea"){
-                type = 'o';
-            }else{
-                type = n.getNodeName().charAt(0);
-            }
-            //+staticList.item(i));
-            NodeList rowAndCol = n.getChildNodes();
-            for(int j=0;j<rowAndCol.getLength();j++){
-                if(rowAndCol.item(j).getNodeName()=="row"){
-                    row = rowAndCol.item(j).getTextContent().charAt(0);
-                }
-                if(rowAndCol.item(j).getNodeName()=="col"){
-                    col = rowAndCol.item(j).getTextContent().charAt(0);
-                }
-            }
-
-            ret.add(type+" "+row+" "+col);
-        }
-        return ret;
-    }
-
-    public ArrayList<String> parseGardenXML(){
-        ArrayList<String> ret = new ArrayList<>();
-        File inputFile = new File("./garden.xml");
-
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dbBuilder;
-        try {
-            dbBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dbBuilder.parse(inputFile);
-            doc.getDocumentElement().normalize();
-            Node root = doc.getDocumentElement();
-
-            NodeList childs = root.getChildNodes();//status, static and movable
-
-
-            for(int i = 0;i<childs.getLength();i++){
-                if(childs.item(i).getNodeName()=="status"){
-                    ret.addAll(parseStatus(childs.item(i)));
-                }
-                if(childs.item(i).getNodeName()=="static"||childs.item(i).getNodeName()=="movable"){
-                    ret.addAll(parseStaticMovable(childs.item(i)));//static or movable
-                }
-            }
-                       
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-        }
-        
-        /*ArrayList<String> str = ret;
-        for(String i: str){
-            System.out.println("_"+i+"_");
-
-        }*/
-        
-        return ret;
-    }
-
-
-   /* public static void main (String[] args){
-        GardenDOM garden = GardenDOM.getInstance();
-        garden.createNewXML();
-        Sunflower sf = new Sunflower(2,3);
-        Peashooter ps = new Peashooter(5,3);
-        garden.addStatic(sf);
-        garden.addStatic(ps);
-        garden.testID(ps);
-        garden.deleteStatic(sf);
-
-        ArrayList<String> str = garden.parseGardenXML();
-        for(String i: str){
-            System.out.println(" ");
-            System.out.println("_"+i+"_");
-
-        }
-    }*/
-
 
 }
+
