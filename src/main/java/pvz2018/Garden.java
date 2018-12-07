@@ -1,13 +1,9 @@
 package pvz2018;
 
-import java.util.List;
 import java.util.Map;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,18 +12,12 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.Stack;
 
-import javax.print.attribute.standard.DateTimeAtCreation;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,7 +34,6 @@ public class Garden extends AbstractGarden implements PropertyChangeListener, Se
     Map<String, String> zombieXML = new HashMap<>();
     Stack<String> undoStack = new Stack<>();
     Stack<String> redoStack = new Stack<>();
-   // Map<Integer,Stack<String>> roundStacks = new HashMap<>();
     Map<Integer,String> domStacks = new HashMap<>();
     GameStatus gameStatus;
     String tempPath = Utility.getResourceFilePath("temp");
@@ -140,7 +129,7 @@ public class Garden extends AbstractGarden implements PropertyChangeListener, Se
          } 
     }
 
-    void printStatus(){
+    public void printStatus(){//for debug purpose, print game current status
         Field[] fields = GameStatus.class.getDeclaredFields();
         for(Field f : fields){
             if((f.getModifiers() & Modifier.FINAL) == Modifier.FINAL){
@@ -178,8 +167,8 @@ public class Garden extends AbstractGarden implements PropertyChangeListener, Se
         updatePlants();
         moveZombie();
         moveAmo();
-        //serialize game status;
     }
+
     private void updatePlants(){
         NodeList plants = (NodeList)gardenDOM.find(null,"//plant",NodeList.class);
         for(int i = 0;i<plants.getLength();i++){
@@ -213,16 +202,33 @@ public class Garden extends AbstractGarden implements PropertyChangeListener, Se
         }
     }
 
-
     public String format(){
         StringBuffer str = new StringBuffer();
+        
+        str.append(String.format("gameRound,%d-",gameStatus.gameProgress));
+        str.append(String.format("money,%d-",gameStatus.money));
+
         NodeList creatures = (NodeList)gardenDOM.find(null, "./child::*/child::*/*", NodeList.class);
         for(int i =0;i<creatures.getLength();i++){
             Node creature = creatures.item(i);
-            str.append(String.format("%c,%d,%d-",
-            gardenDOM.getObjectName(creature).charAt(0),
-            gardenDOM.getObjectX(creature),
-            gardenDOM.getObjectY(creature)));
+            String name = gardenDOM.getObjectName(creature);
+            int x=0;
+            int y=0;
+            int xUnit = 90;
+            int yUnit = 90;
+            switch(creature.getNodeName()){
+                case "plant":
+                    x =  gardenDOM.getObjectX(creature);
+                    y = gardenDOM.getObjectY(creature);
+                    break;
+                case "zombie":
+                case "ammunition":
+                    x =  xUnit*gardenDOM.getObjectX(creature);
+                    y = yUnit*gardenDOM.getObjectY(creature);
+            }
+            str.append(String.format("%s,%d,%d-",name,x,y));
+
+
         }
        return str.toString();
     }
